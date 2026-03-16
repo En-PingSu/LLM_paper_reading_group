@@ -21,22 +21,22 @@ A reference guide covering the math you need to follow along with GPT-1, GPT-2, 
 
 ## 1. Notation Guide
 
-Mathematical notation is just shorthand. Once you learn the symbols, the papers become much easier to read. Think of each symbol as an abbreviation --- the same way "etc." stands for "et cetera."
+Mathematical notation is just shorthand. Once you learn the symbols, the papers become much easier to read. Think of each symbol as an abbreviation — the same way "etc." stands for "et cetera."
 
 | Symbol | Name | Meaning | Example |
 |--------|------|---------|---------|
 | $\theta$ | theta | Model parameters (all the weights and biases) | $L(\theta)$ = loss as a function of model parameters |
 | $\phi$ | phi | Alternate set of parameters (e.g., a separate RL policy or reward model) | $\pi_\phi$ = policy parameterized by $\phi$ |
 | $\sigma$ | sigma (lowercase) | The sigmoid function, squashes any number into the range (0, 1) | $\sigma(0) = 0.5$ |
-| $\pi$ | pi | A policy --- a rule that decides what action to take given a situation | $\pi_\theta(a \mid s)$ = probability of action $a$ in state $s$ |
-| $\mathbb{E}[\cdot]$ | E | Expectation --- the weighted average over all possible outcomes | $\mathbb{E}[X] = \sum x \cdot P(x)$ |
-| $\sum$ | sigma (uppercase) | Summation --- add up a series of terms | $\sum_{i=1}^{3} i = 1 + 2 + 3 = 6$ |
-| $\prod$ | pi (uppercase) | Product --- multiply a series of terms | $\prod_{i=1}^{3} i = 1 \times 2 \times 3 = 6$ |
-| $\nabla$ | nabla / "del" | Gradient --- the vector of all partial derivatives (points "uphill") | $\nabla_\theta L$ = gradient of loss w.r.t. parameters |
+| $\pi$ | pi | A policy — a rule that decides what action to take given a situation | $\pi_\theta(a \mid s)$ = probability of action $a$ in state $s$ |
+| $\mathbb{E}[\cdot]$ | E | Expectation — the weighted average over all possible outcomes | $\mathbb{E}[X] = \sum x \cdot P(x)$ |
+| $\sum$ | sigma (uppercase) | Summation — add up a series of terms | $\sum_{i=1}^{3} i = 1 + 2 + 3 = 6$ |
+| $\prod$ | pi (uppercase) | Product — multiply a series of terms | $\prod_{i=1}^{3} i = 1 \times 2 \times 3 = 6$ |
+| $\nabla$ | nabla / "del" | Gradient — the vector of all partial derivatives (points "uphill") | $\nabla_\theta L$ = gradient of loss w.r.t. parameters |
 | $\arg\max$ | argmax | The input value that produces the maximum output | $\arg\max_x f(x)$ = the $x$ that makes $f$ biggest |
 | $\in$ | "in" / "element of" | Membership in a set | $x \in \{1, 2, 3\}$ means $x$ is one of 1, 2, or 3 |
-| $\forall$ | "for all" | Universal quantifier --- statement holds for every element | $\forall x \in S$ means "for every $x$ in set $S$" |
-| $\mid$ | "given" / "such that" | Conditional --- what comes after is the condition | $P(A \mid B)$ = probability of $A$ given $B$ |
+| $\forall$ | "for all" | Universal quantifier — statement holds for every element | $\forall x \in S$ means "for every $x$ in set $S$" |
+| $\mid$ | "given" / "such that" | Conditional — what comes after is the condition | $P(A \mid B)$ = probability of $A$ given $B$ |
 | $\sim$ | "distributed as" / "sampled from" | A random variable follows a distribution | $x \sim \mathcal{N}(0, 1)$ means $x$ is drawn from a standard normal |
 | $\approx$ | "approximately equal" | Two quantities are close but not exactly equal | $\pi \approx 3.14$ |
 
@@ -76,7 +76,7 @@ Half of CS students also study math.
 
 ### Bayes' Theorem
 
-**Definition:** A way to "reverse" a conditional probability --- if you know $P(B \mid A)$, you can find $P(A \mid B)$.
+**Definition:** A way to "reverse" a conditional probability — if you know $P(B \mid A)$, you can find $P(A \mid B)$.
 
 **Formula:**
 
@@ -113,7 +113,7 @@ Only about 8.3% chance you actually have the disease, even with a positive test!
 
 **Joint probability** $P(A, B)$ is the probability that both $A$ and $B$ happen together.
 
-**Marginal probability** is what you get when you "sum out" one variable from a joint distribution --- it is the overall probability of one event regardless of the other.
+**Marginal probability** is what you get when you "sum out" one variable from a joint distribution — it is the overall probability of one event regardless of the other.
 
 **Formula (marginalization):**
 
@@ -207,7 +207,7 @@ $$= -[-0.137 + (-0.332)]$$
 
 $$= -(-0.469) = 0.469 \text{ bits}$$
 
-The fair coin has higher entropy (1.0 bit) than the biased coin (0.469 bits). This makes sense --- the fair coin is harder to predict.
+The fair coin has higher entropy (1.0 bit) than the biased coin (0.469 bits). This makes sense — the fair coin is harder to predict.
 
 ---
 
@@ -292,7 +292,7 @@ Neural networks are, at their core, sequences of matrix multiplications followed
 
 ### Vectors
 
-**Definition:** A vector is an ordered list of numbers. It can represent a point in space, a direction, or --- in ML --- a set of features.
+**Definition:** A vector is an ordered list of numbers. It can represent a point in space, a direction, or — in ML — a set of features.
 
 **Notation:** Vectors are typically written as bold lowercase letters or with an arrow: $\mathbf{v}$ or $\vec{v}$.
 
@@ -300,7 +300,7 @@ Neural networks are, at their core, sequences of matrix multiplications followed
 \mathbf{v} = \begin{bmatrix} 3 \\ 1 \\ 4 \end{bmatrix}
 ```
 
-**Intuition:** Think of a vector as a list of measurements. A word embedding is a vector --- each number captures some aspect of the word's meaning. GPT-1 uses 768-dimensional embeddings, meaning each word is represented as a list of 768 numbers.
+**Intuition:** Think of a vector as a list of measurements. A word embedding is a vector — each number captures some aspect of the word's meaning. GPT-1 uses 768-dimensional embeddings, meaning each word is represented as a list of 768 numbers.
 
 ---
 
@@ -342,7 +342,7 @@ C = AB = \begin{bmatrix} (1 \times 5 + 2 \times 7) & (1 \times 6 + 2 \times 8) \
 
 Step by step for $C_{11}$: row 1 of $A$ = $[1, 2]$, column 1 of $B$ = $[5, 7]$. Dot product = $1 \times 5 + 2 \times 7 = 5 + 14 = 19$.
 
-> **Paper Connection (All Weeks):** Every linear layer in a transformer performs matrix multiplication: $\text{output} = \mathbf{x} W + \mathbf{b}$. The input vector $\mathbf{x}$ is multiplied by a weight matrix $W$ and a bias $\mathbf{b}$ is added. GPT-3's largest model has 175 billion parameters --- almost all of which are entries in weight matrices.
+> **Paper Connection (All Weeks):** Every linear layer in a transformer performs matrix multiplication: $\text{output} = \mathbf{x} W + \mathbf{b}$. The input vector $\mathbf{x}$ is multiplied by a weight matrix $W$ and a bias $\mathbf{b}$ is added. GPT-3's largest model has 175 billion parameters. The bulk of these are entries in weight matrices, with smaller contributions from bias vectors and embedding tables.
 
 ---
 
@@ -394,7 +394,7 @@ Training a neural network means finding the parameters that minimize a loss func
 
 ### Derivatives
 
-**Definition:** The derivative of a function $f(x)$ at a point tells you the *rate of change* --- how much $f$ changes when you nudge $x$ by a tiny amount.
+**Definition:** The derivative of a function $f(x)$ at a point tells you the *rate of change* — how much $f$ changes when you nudge $x$ by a tiny amount.
 
 **Notation:** $f'(x)$ or $\frac{df}{dx}$
 
@@ -456,7 +456,7 @@ Step 3: Multiply: $\frac{dy}{dx} = 2(3x + 2) \times 3 = 6(3x + 2)$
 
 At $x = 1$: $\frac{dy}{dx} = 6(3 \times 1 + 2) = 6 \times 5 = 30$
 
-> **Paper Connection (All Weeks):** Backpropagation --- the algorithm that trains neural networks --- is just the chain rule applied repeatedly. The loss depends on the output, which depends on the last layer, which depends on the second-to-last layer, and so on. The chain rule lets us compute how each parameter affects the loss by multiplying derivatives along the chain.
+> **Paper Connection (All Weeks):** Backpropagation — the algorithm that trains neural networks — is just the chain rule applied repeatedly. The loss depends on the output, which depends on the last layer, which depends on the second-to-last layer, and so on. The chain rule lets us compute how each parameter affects the loss by multiplying derivatives along the chain.
 
 ---
 
@@ -560,7 +560,7 @@ Logarithms turn multiplication into addition, which makes many calculations much
 
 $$P(\text{sentence}) = 0.1 \times 0.05 \times 0.08 \times 0.03 \times \ldots$$
 
-After enough multiplications, this number becomes astronomically tiny (like $10^{-50}$), causing **underflow** --- the computer rounds it to zero.
+After enough multiplications, this number becomes astronomically tiny (like $10^{-50}$), causing **underflow** — the computer rounds it to zero.
 
 **The solution:** Work in log-space. Take the log of the probability:
 
@@ -618,7 +618,7 @@ Result: $[0.629, 0.231, 0.140]$
 
 Check: $0.629 + 0.231 + 0.140 = 1.000$. It is a valid probability distribution.
 
-> **Paper Connection (All Weeks):** The final layer of every GPT model applies softmax over the vocabulary. If GPT-2's vocabulary has 50,257 tokens, the model produces 50,257 logits, and softmax converts them into 50,257 probabilities --- one for each possible next token.
+> **Paper Connection (All Weeks):** The final layer of every GPT model applies softmax over the vocabulary. If GPT-2's vocabulary has 50,257 tokens, the model produces 50,257 logits, and softmax converts them into 50,257 probabilities — one for each possible next token.
 
 ---
 
@@ -632,7 +632,7 @@ $$\sigma(x) = \frac{1}{1 + \exp(-x)}$$
 
 | Property | Value |
 |----------|-------|
-| Output range | $(0, 1)$ --- always between 0 and 1 but never exactly 0 or 1 |
+| Output range | $(0, 1)$ — always between 0 and 1 but never exactly 0 or 1 |
 | $\sigma(0)$ | $0.5$ (the midpoint) |
 | Symmetry | $\sigma(-x) = 1 - \sigma(x)$ |
 | Large positive $x$ | $\sigma(x) \to 1$ |
@@ -670,7 +670,7 @@ Already very close to 1.
 >
 > Here, $r_w$ is the reward model's score for the *preferred* (winning) response and $r_l$ is the score for the *rejected* (losing) response. The term $\sigma(r_w - r_l)$ represents the probability that the reward model correctly ranks the winning response higher. By taking $-\log$ of this, we create a loss that is small when $r_w \gg r_l$ (correct ranking, high confidence) and large when $r_w \leq r_l$ (wrong ranking).
 >
-> **Numerical example:** If $r_w = 3.0$ and $r_l = 1.0$, then $\sigma(3.0 - 1.0) = \sigma(2.0) = 0.881$, so loss $= -\log(0.881) = 0.127$. Small loss --- the model correctly ranks the preferred response much higher. If instead $r_w = 1.5$ and $r_l = 1.4$, then $\sigma(0.1) = 0.525$, so loss $= -\log(0.525) = 0.644$. Larger loss --- the model barely distinguishes the two.
+> **Numerical example:** If $r_w = 3.0$ and $r_l = 1.0$, then $\sigma(3.0 - 1.0) = \sigma(2.0) = 0.881$, so loss $= -\log(0.881) = 0.127$. Small loss — the model correctly ranks the preferred response much higher. If instead $r_w = 1.5$ and $r_l = 1.4$, then $\sigma(0.1) = 0.525$, so loss $= -\log(0.525) = 0.644$. Larger loss — the model barely distinguishes the two.
 
 ---
 
@@ -713,7 +713,7 @@ The 6 pairs from items {A, B, C, D}: {A,B}, {A,C}, {A,D}, {B,C}, {B,D}, {C,D}.
 
 $$\binom{9}{2} = \frac{9!}{2! \cdot 7!} = \frac{9 \times 8}{2 \times 1} = \frac{72}{2} = 36$$
 
-> The InstructGPT paper uses $K$ values ranging from 4 to 9. With $K = 9$, a single ranking produces 36 pairwise comparisons --- a huge multiplier on the labeling effort.
+> The InstructGPT paper uses $K$ values ranging from 4 to 9. With $K = 9$, a single ranking produces 36 pairwise comparisons — a huge multiplier on the labeling effort.
 
 ---
 
@@ -773,7 +773,7 @@ $$\mathbb{E}[X] = 1(0.1) + 2(0.1) + 3(0.1) + 4(0.1) + 5(0.1) + 6(0.5)$$
 
 $$= 0.1 + 0.2 + 0.3 + 0.4 + 0.5 + 3.0 = 4.5$$
 
-The expected value is 4.5 --- higher than a fair die's expected value of 3.5, because this die is loaded toward 6.
+The expected value is 4.5 — higher than a fair die's expected value of 3.5, because this die is loaded toward 6.
 
 ---
 
@@ -822,17 +822,17 @@ This table maps each mathematical concept to the weeks where it appears. Use it 
 |---------|------------|------------|------------|-------------------|
 | **Chain rule of probability** | Autoregressive LM objective | Zero-shot task formulation | Core training objective $\prod P(w_t \mid w_{t-k}, \ldots, w_{t-1})$ | Language model pre-training baseline |
 | **Cross-entropy / NLL** | Training loss; reported in bits-per-byte | Perplexity evaluation | Pre-training loss $L_1(\mathcal{U})$ | SFT training loss |
-| **KL divergence** | --- | --- | --- | PPO penalty $\beta \cdot D_{KL}(\pi_\theta^{RL} \| \pi^{SFT})$ |
-| **Sigmoid ($\sigma$)** | --- | --- | --- | RM loss: $-\log(\sigma(r_w - r_l))$ |
-| **Binomial coefficients** | --- | --- | --- | RM pairwise comparisons: $\binom{K}{2}$ pairs from $K$ ranked responses |
+| **KL divergence** | — | — | — | PPO penalty $\beta \cdot D_{KL}(\pi_\theta^{RL} \| \pi^{SFT})$ |
+| **Sigmoid ($\sigma$)** | — | — | — | RM loss: $-\log(\sigma(r_w - r_l))$ |
+| **Binomial coefficients** | — | — | — | RM pairwise comparisons: $\binom{K}{2}$ pairs from $K$ ranked responses |
 | **Softmax** | Output layer over vocabulary | Output layer over vocabulary | Output layer over vocabulary | Output layer over vocabulary |
 | **Gradient descent / SGD** | Training with Adam optimizer | Training with Adam optimizer | Training with Adam optimizer | Training RM, SFT, and PPO models |
-| **Cosine LR decay** | Cosine schedule during training | --- | --- | SFT training: 16 epochs with cosine LR decay |
-| **Expectation ($\mathbb{E}$)** | --- | --- | --- | PPO objective: $\mathbb{E}[r_\theta - \beta D_{KL}]$ |
+| **Cosine LR decay** | Cosine schedule during training | — | — | SFT training: 16 epochs with cosine LR decay |
+| **Expectation ($\mathbb{E}$)** | — | — | — | PPO objective: $\mathbb{E}[r_\theta - \beta D_{KL}]$ |
 | **Matrix multiplication** | 175B parameter weight matrices | Weight matrices in 48-layer transformer | Weight matrices in 12-layer transformer | Same architecture, fine-tuned |
 | **Dot product** | Attention score computation | Attention score computation | Attention score computation | Attention score computation |
-| **Bayes' theorem** | Conceptual basis for probabilistic modeling | Conceptual basis | Conceptual basis | --- |
-| **Entropy** | Reported via perplexity and BPB | Reported via perplexity | --- | --- |
+| **Bayes' theorem** | Conceptual basis for probabilistic modeling | Conceptual basis | Conceptual basis | — |
+| **Entropy** | Reported via perplexity and BPB | Reported via perplexity | — | — |
 | **Log rules** | Numerical stability in training | Numerical stability in training | Log-likelihood objective | Log in RM loss and PPO objective |
 
 > **Reading tip:** If you encounter unfamiliar math in a paper, use this table to find the relevant section above, work through the example, then return to the paper. Most of the heavy math is concentrated in W4 (InstructGPT), which combines sigmoid, KL divergence, expectation, and combinatorics in a single training pipeline.

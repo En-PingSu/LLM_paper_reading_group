@@ -418,10 +418,21 @@ These rules are applied repeatedly throughout ML. Every derivative you encounter
 | **Power rule** | $f(x) = x^n$ | $f'(x) = nx^{n-1}$ | $f(x) = x^3 \to f'(x) = 3x^2$ |
 | **Constant multiple** | $f(x) = c \cdot g(x)$ | $f'(x) = c \cdot g'(x)$ | $f(x) = 5x^2 \to f'(x) = 10x$ |
 | **Sum rule** | $f(x) = g(x) + h(x)$ | $f'(x) = g'(x) + h'(x)$ | $f(x) = x^2 + x^3 \to f'(x) = 2x + 3x^2$ |
-| **Product rule** | $f(x) = g(x) \cdot h(x)$ | $f'(x) = g'(x)h(x) + g(x)h'(x)$ | $f(x) = x \cdot e^x \to f'(x) = e^x + xe^x$ |
+| **Product rule** | $f(x) = g(x) \cdot h(x)$ | $f'(x) = g'(x)h(x) + g(x)h'(x)$ | See worked example below |
 | **Chain rule** | $f(x) = g(h(x))$ | $f'(x) = g'(h(x)) \cdot h'(x)$ | See [Chain Rule section](#chain-rule-of-calculus) below |
 | **Exponential** | $f(x) = e^x$ | $f'(x) = e^x$ | The only function that is its own derivative |
 | **Natural log** | $f(x) = \ln(x)$ | $f'(x) = \frac{1}{x}$ | $f(x) = \ln(x) \to f'(x) = \frac{1}{x}$ |
+
+**Product rule worked example:** $f(x) = x \cdot e^x$
+
+The product rule says: "derivative of the first times the second, plus the first times the derivative of the second."
+
+- Let $g(x) = x$ and $h(x) = e^x$
+- $g'(x) = 1$ (power rule: derivative of $x$ is $1$)
+- $h'(x) = e^x$ (exponential rule: derivative of $e^x$ is $e^x$)
+- $f'(x) = g'(x) \cdot h(x) + g(x) \cdot h'(x) = 1 \cdot e^x + x \cdot e^x = e^x + xe^x$
+
+At $x = 2$: $f'(2) = e^2 + 2e^2 = 3e^2 \approx 22.17$
 
 > These are the only rules you need to follow the math in the GPT and InstructGPT papers. The power rule and chain rule do most of the heavy lifting.
 

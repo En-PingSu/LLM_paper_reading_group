@@ -576,7 +576,7 @@ $$\alpha_{100} = 0.0005 \times \left(1 + \cos(\pi)\right) = 0.0005 \times (1 - 1
 
 The learning rate smoothly decreases from 0.001 to 0.
 
-> **Paper Connection (W4 - InstructGPT):** The InstructGPT paper uses cosine learning rate decay for SFT (supervised fine-tuning) training over 16 epochs. Starting with a larger learning rate helps the model learn quickly; decaying it helps the model settle into a good minimum without overshooting.
+> **Paper Connection (W4 - InstructGPT):** The InstructGPT paper uses cosine learning rate decay for SFT (supervised fine-tuning) training over 16 epochs. Starting with a larger learning rate helps the model learn quickly; decaying it helps the model settle into a good minimum without overshooting (i.e., taking a gradient descent step so large that it jumps past the minimum and the loss goes up instead of down).
 
 ---
 

@@ -23,6 +23,7 @@
 ---
 
 ## Overview
+*Paper reference: Abstract & Section 1 (pp. 1–3)*
 
 The language modeling objective — predict the next token on web text — is fundamentally different from what users actually want. Making models bigger does not fix this: a 175B GPT-3 can still be untruthful, toxic, or unhelpful. InstructGPT demonstrates that reinforcement learning from human feedback (RLHF) can align language models with user intent. A 1.3B InstructGPT model is preferred over a 175B GPT-3 despite having 100x fewer parameters.
 
@@ -35,6 +36,7 @@ The language modeling objective — predict the next token on web text — is fu
 ---
 
 ## Key Points
+*Paper reference: Section 1 (pp. 1–4)*
 
 - The language modeling objective (next-token prediction on internet text) is misaligned with user intent (helpful, honest, harmless)
 - RLHF provides a three-stage pipeline (SFT → Reward Model → PPO) to align model behavior with human preferences
@@ -47,6 +49,7 @@ The language modeling objective — predict the next token on web text — is fu
 ---
 
 ## The Alignment Problem
+*Paper reference: Section 1 (pp. 1–2)*
 
 | Aspect | LM Optimization | User Expectations |
 |--------|----------------|-------------------|
@@ -60,8 +63,10 @@ The language modeling objective — predict the next token on web text — is fu
 ---
 
 ## The RLHF Pipeline
+*Paper reference: Section 3 — Methods and experimental details (pp. 6–9)*
 
 ### Step 1: Supervised Fine-Tuning (SFT)
+*Paper reference: Section 3.5 "Supervised fine-tuning (SFT)" (p. 8)*
 
 The first stage collects human-written demonstrations of ideal model behavior and fine-tunes GPT-3 on them.
 
@@ -81,6 +86,7 @@ The SFT model learns to produce this style of helpful, instruction-following res
 ---
 
 ### Step 2: Reward Model (RM)
+*Paper reference: Section 3.5 "Reward modeling (RM)" (p. 8, Equation 1)*
 
 The reward model learns to assign scalar scores to model outputs based on human preference rankings.
 
@@ -166,6 +172,7 @@ $$\text{loss} = -(-0.264) = 0.264$$
 ---
 
 ### Step 3: Proximal Policy Optimization (PPO)
+*Paper reference: Section 3.5 "Reinforcement learning (RL)" (p. 9, Equation 2)*
 
 The final stage uses the trained reward model to optimize the language model's policy via reinforcement learning.
 
@@ -210,6 +217,7 @@ The KL penalty increasingly reduces the objective as the policy diverges, discou
 ---
 
 ## PPO-ptx: Mitigating the Alignment Tax
+*Paper reference: Section 3.5 (p. 9) and Section 4.2 (pp. 14–15, Figures 29, 33–34 in Appendix)*
 
 **Definition:** The alignment tax is the performance regression on standard NLP benchmarks caused by RLHF fine-tuning. The model becomes better at following instructions but worse at general language tasks.
 
@@ -230,6 +238,7 @@ The KL penalty increasingly reduces the objective as the policy diverges, discou
 ---
 
 ## Key Results
+*Paper reference: Section 4 — Results (pp. 10–16, Figures 1, 3–7)*
 
 | Metric | 1.3B InstructGPT | 175B GPT-3 | 175B InstructGPT |
 |--------|-------------------|------------|------------------|
@@ -252,6 +261,7 @@ The KL penalty increasingly reduces the objective as the policy diverges, discou
 ---
 
 ## Evaluation Framework
+*Paper reference: Section 3.6 — Evaluation (pp. 9–10, Table 3)*
 
 **Helpfulness:** The model should help the user solve their task, follow instructions, and infer intent even when instructions are ambiguous.
 
@@ -266,6 +276,7 @@ The KL penalty increasingly reduces the objective as the policy diverges, discou
 ---
 
 ## "Who Are We Aligning To?"
+*Paper reference: Section 5.2 (pp. 18–19) and Section 5.3 — Limitations (p. 19)*
 
 The human feedback in RLHF comes from a specific group of people:
 
@@ -290,6 +301,7 @@ The human feedback in RLHF comes from a specific group of people:
 ---
 
 ## Datasets & Benchmarks
+*Paper reference: Section 4.2 — Results on public NLP datasets (pp. 13–15, Figures 6–7)*
 
 | Benchmark | What It Measures | Example | InstructGPT Result |
 |-----------|-----------------|---------|-------------------|

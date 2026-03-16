@@ -408,6 +408,23 @@ At $x = 3$: $f'(3) = 2 \times 3 = 6$. The function is increasing at a rate of 6 
 
 At $x = 0$: $f'(0) = 0$. This is the minimum of $x^2$.
 
+### Common Derivative Rules
+
+These rules are applied repeatedly throughout ML. Every derivative you encounter in the papers can be computed by combining them.
+
+| Rule | Function | Derivative | Example |
+|------|----------|------------|---------|
+| **Constant** | $f(x) = c$ | $f'(x) = 0$ | $f(x) = 5 \to f'(x) = 0$ |
+| **Power rule** | $f(x) = x^n$ | $f'(x) = nx^{n-1}$ | $f(x) = x^3 \to f'(x) = 3x^2$ |
+| **Constant multiple** | $f(x) = c \cdot g(x)$ | $f'(x) = c \cdot g'(x)$ | $f(x) = 5x^2 \to f'(x) = 10x$ |
+| **Sum rule** | $f(x) = g(x) + h(x)$ | $f'(x) = g'(x) + h'(x)$ | $f(x) = x^2 + x^3 \to f'(x) = 2x + 3x^2$ |
+| **Product rule** | $f(x) = g(x) \cdot h(x)$ | $f'(x) = g'(x)h(x) + g(x)h'(x)$ | $f(x) = x \cdot e^x \to f'(x) = e^x + xe^x$ |
+| **Chain rule** | $f(x) = g(h(x))$ | $f'(x) = g'(h(x)) \cdot h'(x)$ | See [Chain Rule section](#chain-rule-of-calculus) below |
+| **Exponential** | $f(x) = e^x$ | $f'(x) = e^x$ | The only function that is its own derivative |
+| **Natural log** | $f(x) = \ln(x)$ | $f'(x) = \frac{1}{x}$ | $f(x) = \ln(x) \to f'(x) = \frac{1}{x}$ |
+
+> These are the only rules you need to follow the math in the GPT and InstructGPT papers. The power rule and chain rule do most of the heavy lifting.
+
 ---
 
 ### Partial Derivatives
@@ -416,13 +433,27 @@ At $x = 0$: $f'(0) = 0$. This is the minimum of $x^2$.
 
 **Notation:** $\frac{\partial f}{\partial x}$ (the curly $\partial$ instead of straight $d$ signals "partial").
 
+**Why this matters for ML:** A neural network's loss function depends on millions (or billions) of parameters. To update any single parameter, we need to know how the loss changes when we nudge *just that one parameter* while keeping all the others fixed. That is exactly what a partial derivative tells us.
+
 **Worked Example:**
 
 If $f(x, y) = x^2 + 3xy + y^2$:
 
-$$\frac{\partial f}{\partial x} = 2x + 3y \quad \text{(treat } y \text{ as a constant)}$$
+To find $\frac{\partial f}{\partial x}$, treat $y$ as a constant and differentiate each term with respect to $x$:
 
-$$\frac{\partial f}{\partial y} = 3x + 2y \quad \text{(treat } x \text{ as a constant)}$$
+- $x^2 \to 2x$ (power rule)
+- $3xy \to 3y$ (constant multiple rule — $3y$ is just a constant times $x$)
+- $y^2 \to 0$ (it does not contain $x$, so it is a constant)
+
+$$\frac{\partial f}{\partial x} = 2x + 3y$$
+
+To find $\frac{\partial f}{\partial y}$, treat $x$ as a constant and differentiate each term with respect to $y$:
+
+- $x^2 \to 0$ (constant)
+- $3xy \to 3x$ (constant multiple rule)
+- $y^2 \to 2y$ (power rule)
+
+$$\frac{\partial f}{\partial y} = 3x + 2y$$
 
 At $(x, y) = (1, 2)$:
 
@@ -430,7 +461,7 @@ $$\frac{\partial f}{\partial x} = 2(1) + 3(2) = 2 + 6 = 8$$
 
 $$\frac{\partial f}{\partial y} = 3(1) + 2(2) = 3 + 4 = 7$$
 
-The gradient vector $\nabla f = [8, 7]$ points in the direction of steepest increase.
+The gradient vector $\nabla f = [8, 7]$ points in the direction of steepest increase. In gradient descent, we move in the *opposite* direction $[-8, -7]$ to reduce $f$.
 
 ---
 

@@ -296,7 +296,9 @@ Neural networks are, at their core, sequences of matrix multiplications followed
 
 **Notation:** Vectors are typically written as bold lowercase letters or with an arrow: $\mathbf{v}$ or $\vec{v}$.
 
-$$\mathbf{v} = \left[\begin{array}{c} 3 \\ 1 \\ 4 \end{array}\right]$$
+```math
+\mathbf{v} = \begin{bmatrix} 3 \\ 1 \\ 4 \end{bmatrix}
+```
 
 **Intuition:** Think of a vector as a list of measurements. A word embedding is a vector --- each number captures some aspect of the word's meaning. GPT-1 uses 768-dimensional embeddings, meaning each word is represented as a list of 768 numbers.
 
@@ -314,7 +316,9 @@ $$\mathbf{a} \cdot \mathbf{b} = \sum_{i=1}^{n} a_i \cdot b_i = a_1 b_1 + a_2 b_2
 
 **Worked Example:**
 
-$$\mathbf{a} = \left[\begin{array}{c} 2 \\ 3 \\ 1 \end{array}\right], \quad \mathbf{b} = \left[\begin{array}{c} 4 \\ 1 \\ 5 \end{array}\right]$$
+```math
+\mathbf{a} = \begin{bmatrix} 2 \\ 3 \\ 1 \end{bmatrix}, \quad \mathbf{b} = \begin{bmatrix} 4 \\ 1 \\ 5 \end{bmatrix}
+```
 
 $$\mathbf{a} \cdot \mathbf{b} = (2 \times 4) + (3 \times 1) + (1 \times 5) = 8 + 3 + 5 = 16$$
 
@@ -328,9 +332,13 @@ $$\mathbf{a} \cdot \mathbf{b} = (2 \times 4) + (3 \times 1) + (1 \times 5) = 8 +
 
 **Worked Example:**
 
-$$A = \left[\begin{array}{cc} 1 & 2 \\ 3 & 4 \end{array}\right], \quad B = \left[\begin{array}{cc} 5 & 6 \\ 7 & 8 \end{array}\right]$$
+```math
+A = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}, \quad B = \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix}
+```
 
-$$C = AB = \left[\begin{array}{cc} (1 \times 5 + 2 \times 7) & (1 \times 6 + 2 \times 8) \\ (3 \times 5 + 4 \times 7) & (3 \times 6 + 4 \times 8) \end{array}\right] = \left[\begin{array}{cc} 19 & 22 \\ 43 & 50 \end{array}\right]$$
+```math
+C = AB = \begin{bmatrix} (1 \times 5 + 2 \times 7) & (1 \times 6 + 2 \times 8) \\ (3 \times 5 + 4 \times 7) & (3 \times 6 + 4 \times 8) \end{bmatrix} = \begin{bmatrix} 19 & 22 \\ 43 & 50 \end{bmatrix}
+```
 
 Step by step for $C_{11}$: row 1 of $A$ = $[1, 2]$, column 1 of $B$ = $[5, 7]$. Dot product = $1 \times 5 + 2 \times 7 = 5 + 14 = 19$.
 
@@ -344,7 +352,9 @@ Step by step for $C_{11}$: row 1 of $A$ = $[1, 2]$, column 1 of $B$ = $[5, 7]$. 
 
 **Worked Example:**
 
-$$A = \left[\begin{array}{ccc} 1 & 2 & 3 \\ 4 & 5 & 6 \end{array}\right] \quad \Rightarrow \quad A^\top = \left[\begin{array}{cc} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{array}\right]$$
+```math
+A = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix} \quad \Rightarrow \quad A^\top = \begin{bmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{bmatrix}
+```
 
 Row 1 of $A$ becomes column 1 of $A^\top$, and so on.
 
@@ -364,11 +374,15 @@ Each projection is a matrix multiplication that transforms the input embedding i
 
 Suppose our input embedding is $\mathbf{x} = [1, 0, 2]$ and our query projection matrix is:
 
-$$W^Q = \left[\begin{array}{cc} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{array}\right]$$
+```math
+W^Q = \begin{bmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{bmatrix}
+```
 
 Then:
 
-$$\mathbf{q} = \mathbf{x} W^Q = [1, 0, 2] \left[\begin{array}{cc} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{array}\right] = [(1 \times 1 + 0 \times 0 + 2 \times 1),\; (1 \times 0 + 0 \times 1 + 2 \times 1)] = [3, 2]$$
+```math
+\mathbf{q} = \mathbf{x} W^Q = [1, 0, 2] \begin{bmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{bmatrix} = [(1 \times 1 + 0 \times 0 + 2 \times 1),\; (1 \times 0 + 0 \times 1 + 2 \times 1)] = [3, 2]
+```
 
 The 3-dimensional input has been projected down to a 2-dimensional query vector.
 

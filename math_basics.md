@@ -418,10 +418,10 @@ These rules are applied repeatedly throughout ML. Every derivative you encounter
 | **Power rule** | $f(x) = x^n$ | $f'(x) = nx^{n-1}$ | $f(x) = x^3 \to f'(x) = 3x^2$ |
 | **Constant multiple** | $f(x) = c \cdot g(x)$ | $f'(x) = c \cdot g'(x)$ | $f(x) = 5x^2 \to f'(x) = 10x$ |
 | **Sum rule** | $f(x) = g(x) + h(x)$ | $f'(x) = g'(x) + h'(x)$ | $f(x) = x^2 + x^3 \to f'(x) = 2x + 3x^2$ |
-| **Product rule** | $f(x) = g(x) \cdot h(x)$ | $f'(x) = g'(x)h(x) + g(x)h'(x)$ | See worked example below |
-| **Chain rule** | $f(x) = g(h(x))$ | $f'(x) = g'(h(x)) \cdot h'(x)$ | See [Chain Rule section](#chain-rule-of-calculus) below |
 | **Exponential** | $f(x) = e^x$ | $f'(x) = e^x$ | The only function that is its own derivative |
 | **Natural log** | $f(x) = \ln(x)$ | $f'(x) = \frac{1}{x}$ | $f(x) = \ln(x) \to f'(x) = \frac{1}{x}$ |
+| **Product rule** | $f(x) = g(x) \cdot h(x)$ | $f'(x) = g'(x)h(x) + g(x)h'(x)$ | See worked example below |
+| **Chain rule** | $f(x) = g(h(x))$ | $f'(x) = g'(h(x)) \cdot h'(x)$ | See [Chain Rule section](#chain-rule-of-calculus) below |
 
 **Product rule worked example:** $f(x) = x \cdot e^x$
 

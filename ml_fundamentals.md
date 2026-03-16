@@ -6,6 +6,13 @@
 
 ---
 
+## Useful Links
+
+- [Google Machine Learning Crash Course](https://developers.google.com/machine-learning/crash-course) — A free, comprehensive introduction to ML fundamentals with interactive visualizations and exercises.
+- [Transformer Explainer](https://poloclub.github.io/transformer-explainer/) — An interactive visualization that lets you see how a Transformer processes text step by step, from input tokens through attention and feed-forward layers to output predictions.
+
+---
+
 ## Table of Contents
 
 1. [What is Machine Learning?](#1-what-is-machine-learning)

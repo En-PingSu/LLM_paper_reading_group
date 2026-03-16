@@ -62,7 +62,7 @@ Suppose we have 100 students. 30 study math, 20 study CS, and 10 study both.
 
 - $P(\text{Math}) = 30/100 = 0.30$
 - $P(\text{CS}) = 20/100 = 0.20$
-- $P(\text{Math} \cap \text{CS}) = 10/100 = 0.10$
+- $P(\text{Math and CS}) = 10/100 = 0.10$
 
 What is the probability a student studies Math, *given* they study CS?
 
@@ -111,7 +111,7 @@ Only about 8.3% chance you actually have the disease, even with a positive test!
 
 ### Joint and Marginal Probability
 
-**Joint probability** $P(A, B)$ (equivalently $P(A \cap B)$) is the probability that both $A$ and $B$ happen together.
+**Joint probability** $P(A, B)$ is the probability that both $A$ and $B$ happen together.
 
 **Marginal probability** is what you get when you "sum out" one variable from a joint distribution --- it is the overall probability of one event regardless of the other.
 

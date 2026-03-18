@@ -233,9 +233,11 @@ PPO involves three models running simultaneously:
 
 | Model | Role | Weights |
 |-------|------|---------|
-| **RL policy** $\pi^{RL}_\phi$ | Generates responses, gets updated | Initialized from SFT, actively trained |
-| **SFT model** $\pi^{SFT}$ | Reference for KL penalty | Frozen (never updated) |
+| **RL policy** $\pi^{RL}_\phi$ | Generates responses, gets updated | **Clone** of SFT weights, actively trained |
+| **SFT model** $\pi^{SFT}$ | Fixed reference for KL penalty | **Original** SFT weights, frozen (never updated) |
 | **Reward model** $r_\theta$ | Scores responses | Frozen (never updated) |
+
+At the start of PPO, the SFT weights are **cloned** into two copies. One copy becomes the RL policy $\pi^{RL}_\phi$ that PPO actively updates. The other copy is kept as the frozen reference $\pi^{SFT}$. They start identical but diverge as training progresses. The SFT reference must stay frozen so the KL penalty $\log \frac{\pi^{RL}}{\pi^{SFT}}$ has a fixed anchor — if the reference also moved, the constraint "don't stray too far from your starting behavior" would be meaningless because both models would drift together.
 
 **One PPO training step:**
 

@@ -471,7 +471,7 @@ $$\text{objective}(\phi) = E_{(x,y) \sim D_{\pi^{RL}_\phi}}\left[r_\theta(x, y) 
 | $\gamma > 0$ | "PPO-ptx" models (includes pretraining mix) |
 
 **Training environment:**
-- Bandit setting — a prompt $x$ is sampled, the model generates a full response $y$, receives a reward $r_\theta(x, y)$, and the episode ends
+- **Bandit setting** — In full reinforcement learning, an agent takes many actions across a sequence of states, receiving rewards along the way (like a robot navigating a maze, getting feedback at each step). A bandit setting is much simpler: the agent takes **one action** and receives **one reward**, then the episode is over. Here, the "action" is the model's entire response $y$ to a prompt $x$, and the "reward" is the single scalar $r_\theta(x, y)$ from the RM. There are no intermediate states or partial rewards — the model doesn't get feedback on individual sentences or tokens, only on the complete response. This is simpler to implement and train, though it means the model has to figure out on its own which parts of its response were good or bad.
 - The value function is initialized from the RM
 - A per-token KL penalty from the SFT model is applied during generation to keep the policy stable
 

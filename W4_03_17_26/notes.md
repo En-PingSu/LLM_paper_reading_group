@@ -9,16 +9,17 @@
 2. [Things That Came Up During Reading](#things-that-came-up-during-reading)
 3. [Key Points](#key-points)
 4. [The Alignment Problem](#the-alignment-problem)
-5. [The RLHF Pipeline](#the-rlhf-pipeline)
+5. [RLHF Pipeline: End-to-End Walkthrough](#rlhf-pipeline-end-to-end-walkthrough)
+6. [The RLHF Pipeline](#the-rlhf-pipeline)
    - [Step 1: Supervised Fine-Tuning (SFT)](#step-1-supervised-fine-tuning-sft)
    - [Step 2: Reward Model (RM)](#step-2-reward-model-rm)
    - [Step 3: Proximal Policy Optimization (PPO)](#step-3-proximal-policy-optimization-ppo)
-6. [PPO-ptx: Mitigating the Alignment Tax](#ppo-ptx-mitigating-the-alignment-tax)
-7. [Key Results](#key-results)
-8. [Evaluation Framework](#evaluation-framework)
-9. ["Who Are We Aligning To?"](#who-are-we-aligning-to)
-10. [Datasets & Benchmarks](#datasets--benchmarks)
-11. [Glossary](#glossary)
+7. [PPO-ptx: Mitigating the Alignment Tax](#ppo-ptx-mitigating-the-alignment-tax)
+8. [Key Results](#key-results)
+9. [Evaluation Framework](#evaluation-framework)
+10. ["Who Are We Aligning To?"](#who-are-we-aligning-to)
+11. [Datasets & Benchmarks](#datasets--benchmarks)
+12. [Glossary](#glossary)
 
 ---
 
@@ -59,6 +60,285 @@ The language modeling objective — predict the next token on web text — is fu
 | **Safety** | No safety constraint; toxic text is valid training signal | Should refuse harmful requests, avoid toxic output |
 | **Output format** | Mimics distribution of training data | Structured, concise, task-appropriate responses |
 | **Success metric** | Low perplexity on held-out web text | Helpful, honest, and harmless to the user |
+
+---
+
+## RLHF Pipeline: End-to-End Walkthrough
+
+This section traces concrete inputs, outputs, matrix dimensions, and calculations through each step of the pipeline. We use a simplified GPT with the following dimensions for illustration:
+
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| Vocabulary size ($V$) | 50,257 | GPT-3's BPE vocabulary |
+| Embedding dimension ($d$) | 4,096 | Internal representation size (for 6.7B model) |
+| Sequence length ($T$) | 2,048 | Maximum context window |
+| Number of layers ($N$) | 32 | Transformer decoder blocks |
+
+---
+
+### Step 1: SFT — What Happens Inside
+
+**Input:** A prompt-demonstration pair, e.g.:
+- Prompt: "Explain gravity to a child."
+- Demonstration: "Gravity is what keeps your feet on the ground..."
+
+**Tokenization:**
+
+The full sequence (prompt + demonstration) is converted to token IDs:
+
+```
+["Explain", " gravity", " to", " a", " child", ".", " Gravity", " is", ...]
+→ [48223, 13217, 284, 257, 1200, 13, 29618, 318, ...]
+```
+
+This produces a vector of token IDs with shape $(T,)$ where $T$ is the sequence length.
+
+**Token embedding:**
+
+Each token ID indexes into the embedding matrix $W_E$:
+
+$$W_E \in \mathbb{R}^{V \times d} \quad \text{(50,257 × 4,096)}$$
+
+For token ID 48223 ("Explain"), we look up row 48,223 of $W_E$, giving a vector of 4,096 numbers. After embedding all $T$ tokens:
+
+$$X_{\text{embed}} \in \mathbb{R}^{T \times d} \quad \text{(2,048 × 4,096)}$$
+
+**Positional encoding:**
+
+A learned position embedding matrix $W_P \in \mathbb{R}^{T \times d}$ is added element-wise:
+
+$$X_0 = X_{\text{embed}} + W_P \quad \in \mathbb{R}^{T \times d}$$
+
+This tells the model the order of the tokens (since attention has no built-in notion of position).
+
+**Transformer layers (×N):**
+
+$X_0$ passes through $N = 32$ decoder blocks. Each block applies:
+
+1. **Masked self-attention:**
+   - Project $X$ into queries, keys, and values using learned weight matrices:
+
+$$Q = X W^Q, \quad K = X W^K, \quad V = X W^V$$
+
+   - Each projection matrix is $W^Q, W^K, W^V \in \mathbb{R}^{d \times d}$, so $Q, K, V \in \mathbb{R}^{T \times d}$
+
+   - Compute attention scores (with causal mask so token $t$ can only attend to tokens $\leq t$):
+
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + M\right) V$$
+
+   - Where $M$ is the causal mask (a matrix of $-\infty$ values above the diagonal, 0 on and below)
+   - $QK^T \in \mathbb{R}^{T \times T}$ — the attention score matrix (each token's similarity to every other token)
+   - After softmax and multiplying by $V$: output $\in \mathbb{R}^{T \times d}$
+
+2. **Add & Norm:** Add the input (residual connection) and apply layer normalization
+3. **Feed-forward network:** Two linear layers with GELU activation
+
+$$\text{FFN}(x) = W_2 \cdot \text{GELU}(W_1 \cdot x + b_1) + b_2$$
+
+   - $W_1 \in \mathbb{R}^{d \times 4d}$ expands: 4,096 → 16,384
+   - $W_2 \in \mathbb{R}^{4d \times d}$ contracts: 16,384 → 4,096
+4. **Add & Norm** again
+
+After all 32 layers: $X_N \in \mathbb{R}^{T \times d}$ (same shape as input).
+
+**Unembedding (language model head):**
+
+The final hidden states are projected back to vocabulary probabilities:
+
+$$\text{logits} = X_N W_U \quad \in \mathbb{R}^{T \times V} \quad \text{(2,048 × 50,257)}$$
+
+where $W_U \in \mathbb{R}^{d \times V}$ is the unembedding matrix (often the transpose of $W_E$).
+
+Apply softmax to get probability distribution over the vocabulary at each position:
+
+$$P(w_t \mid w_{<t}) = \text{softmax}(\text{logits}_t) \quad \in \mathbb{R}^{V}$$
+
+**SFT training loss:**
+
+Cross-entropy between the model's predictions and the actual demonstration tokens (computed only over the demonstration portion, not the prompt):
+
+$$\mathcal{L}_{\text{SFT}} = -\frac{1}{T_{\text{demo}}} \sum_{t \in \text{demo}} \log P_\theta(w_t \mid w_{<t})$$
+
+**Worked example (single token prediction):**
+
+Suppose at position $t$, the true next token is "keeps" (ID 7940). The model outputs logits, and after softmax:
+
+| Token | Probability |
+|-------|------------|
+| "keeps" (7940) | 0.72 |
+| "holds" (6622) | 0.15 |
+| "pulls" (17088) | 0.08 |
+| ... (50,254 others) | 0.05 total |
+
+Loss for this token: $-\log(0.72) = 0.329$
+
+If the model had predicted "keeps" with probability 0.01 instead: $-\log(0.01) = 4.605$ (much higher loss).
+
+The total SFT loss is the average of these values across all demonstration tokens.
+
+> **Output of Step 1:** A fine-tuned model $\pi^{\text{SFT}}$ — same architecture as GPT-3, but with updated weights that produce instruction-following behavior. The weights are saved as a checkpoint.
+
+---
+
+### Step 2: RM — What Happens Inside
+
+**Architecture change:** The RM starts from the SFT checkpoint but replaces the unembedding layer.
+
+```
+SFT model:       [Transformer layers] → W_U (d × V)     → logits (T × V)     → probabilities
+Reward model:     [Transformer layers] → W_R (d × 1)     → scalar              → reward score
+```
+
+- $W_U \in \mathbb{R}^{d \times V}$ (4,096 × 50,257) is **removed**
+- $W_R \in \mathbb{R}^{d \times 1}$ (4,096 × 1) is **added** — a single linear projection
+
+**Input:** A prompt $x$ concatenated with a completion $y$:
+
+```
+[prompt tokens] + [completion tokens] → token IDs → embeddings → transformer layers → X_N
+```
+
+**Getting the reward score:**
+
+Take the hidden state at the **last token position** $X_N[T, :]$ (a vector of $d = 4{,}096$ numbers) and multiply by $W_R$:
+
+$$r_\theta(x, y) = X_N[T, :] \cdot W_R \quad \in \mathbb{R}^{1} \quad \text{(a single number)}$$
+
+**Worked example:**
+
+Given prompt "Explain gravity to a child" and 4 completions ranked by a labeler: $A \succ B \succ C \succ D$
+
+The RM processes each (prompt, completion) pair through the transformer:
+
+| Input | Last hidden state $X_N[T, :]$ | $\cdot \; W_R$ | Reward $r_\theta$ |
+|-------|-----|-----|------|
+| (prompt, A) | [0.21, -0.55, 1.03, ...] (4,096 dims) | dot product | 2.0 |
+| (prompt, B) | [0.18, -0.41, 0.87, ...] (4,096 dims) | dot product | 1.0 |
+| (prompt, C) | [0.09, -0.33, 0.62, ...] (4,096 dims) | dot product | 0.5 |
+| (prompt, D) | [-0.12, 0.22, -0.15, ...] (4,096 dims) | dot product | -0.5 |
+
+Note: only **one forward pass per completion** is needed. All $\binom{K}{2}$ pairs are formed from these $K$ scores.
+
+**Training (loss computation):**
+
+From the $K = 4$ reward scores, form all $\binom{4}{2} = 6$ pairs and compute the loss as detailed in the [RM worked example](#step-2-reward-model-rm) above. The gradients flow back through $W_R$ and all transformer layers, updating the weights so that preferred completions get higher scores.
+
+> **Output of Step 2:** A trained reward model $r_\theta$ that takes (prompt, completion) and outputs a scalar score. Higher score = more aligned with human preferences.
+
+---
+
+### Step 3: PPO — What Happens Inside
+
+PPO involves three models running simultaneously:
+
+| Model | Role | Weights |
+|-------|------|---------|
+| **RL policy** $\pi^{RL}_\phi$ | Generates responses, gets updated | Initialized from SFT, actively trained |
+| **SFT model** $\pi^{SFT}$ | Reference for KL penalty | Frozen (never updated) |
+| **Reward model** $r_\theta$ | Scores responses | Frozen (never updated) |
+
+**One PPO training step:**
+
+**Step 3a — Sample a prompt:**
+
+Draw a random prompt $x$ from the dataset, e.g.: "What causes thunder?"
+
+**Step 3b — Generate a response:**
+
+The RL policy generates tokens autoregressively:
+
+```
+Input:  "What causes thunder?"
+        ↓
+RL policy predicts P(w_1 | x) → samples "Thunder"
+        ↓
+RL policy predicts P(w_2 | x, w_1) → samples "is"
+        ↓
+RL policy predicts P(w_3 | x, w_1, w_2) → samples "caused"
+        ↓
+... continues until end-of-sequence token
+        ↓
+Output: y = "Thunder is caused by the rapid expansion of air around a lightning bolt."
+```
+
+At each token, the policy produces a full probability distribution over $V = 50{,}257$ tokens and samples from it. We save these per-token probabilities for later.
+
+**Step 3c — Score with the reward model:**
+
+Feed $(x, y)$ into the frozen RM:
+
+$$r_\theta(x, y) = 3.2 \quad \text{(a single scalar)}$$
+
+**Step 3d — Compute KL penalty:**
+
+For each generated token $w_t$, compare the RL policy's probability to the frozen SFT model's probability:
+
+| Token $w_t$ | $\pi^{RL}_\phi(w_t \mid \ldots)$ | $\pi^{SFT}(w_t \mid \ldots)$ | $\log \frac{\pi^{RL}}{\pi^{SFT}}$ |
+|------------|-----|-----|------|
+| "Thunder" | 0.35 | 0.30 | $\log(0.35/0.30) = 0.154$ |
+| "is" | 0.82 | 0.80 | $\log(0.82/0.80) = 0.025$ |
+| "caused" | 0.45 | 0.25 | $\log(0.45/0.25) = 0.588$ |
+| "by" | 0.90 | 0.88 | $\log(0.90/0.88) = 0.023$ |
+| ... | ... | ... | ... |
+
+The total KL penalty is the sum (or average) of these per-token values:
+
+$$\text{KL} = \sum_t \log \frac{\pi^{RL}_\phi(w_t \mid w_{<t}, x)}{\pi^{SFT}(w_t \mid w_{<t}, x)}$$
+
+Notice "caused" has a high KL contribution (0.588) — the RL policy is much more confident about this word than the SFT model. This token contributes the most penalty.
+
+**Step 3e — Compute the objective:**
+
+$$\text{objective} = r_\theta(x, y) - \beta \cdot \text{KL} = 3.2 - 0.1 \times (0.154 + 0.025 + 0.588 + 0.023 + \ldots)$$
+
+Suppose the total KL sums to 2.4:
+
+$$\text{objective} = 3.2 - 0.1 \times 2.4 = 3.2 - 0.24 = 2.96$$
+
+For PPO-ptx, add the pretraining term:
+
+$$\text{objective}_{\text{PPO-ptx}} = 2.96 + \gamma \cdot \text{(log-likelihood on a pretraining batch)}$$
+
+**Step 3f — Update the RL policy:**
+
+PPO uses this objective to compute gradients and update $\pi^{RL}_\phi$'s weights. The SFT model and RM are never updated. The policy is nudged to:
+- Generate responses that get higher reward (increasing $r_\theta$)
+- Stay close to the SFT model's behavior (minimizing KL)
+- (PPO-ptx only) Remain good at general language modeling
+
+**Repeat** steps 3a–3f for many prompts.
+
+> **Output of Step 3:** The final RL policy $\pi^{RL}_\phi$ — this is InstructGPT. Same transformer architecture as GPT-3, with weights updated by the full SFT → RM → PPO pipeline.
+
+---
+
+### Full Pipeline Summary
+
+```
+                    STEP 1: SFT                    STEP 2: RM                    STEP 3: PPO
+                    ───────────                    ──────────                    ───────────
+Input:              GPT-3 weights                  SFT weights                   SFT weights (→ RL policy)
+                    + 13k demonstrations           + 33k human rankings          + RM (frozen)
+                                                                                 + SFT model (frozen)
+                    ↓                              ↓                             ↓
+
+Process:            Fine-tune GPT-3 on             Remove unembedding layer      Generate responses
+                    demonstrations using           Add scalar projection         Score with RM
+                    cross-entropy loss             Train on pairwise loss        Compute KL penalty
+                                                                                 Update policy with PPO
+
+                    ↓                              ↓                             ↓
+
+Output:             π^SFT                          r_θ (reward model)            π^RL (InstructGPT)
+                    (instruction-following          (scores any response          (aligned language model)
+                     language model)                 with a scalar)
+
+Architecture:       GPT-3 + updated weights        GPT-3 (6B) with              GPT-3 + updated weights
+                                                   scalar head (d×1)
+
+Key dimensions:     Same as GPT-3                  Same, except last layer:     Same as GPT-3
+                    logits: T × 50,257             d → 1 (not d → 50,257)      logits: T × 50,257
+```
 
 ---
 

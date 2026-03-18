@@ -151,13 +151,13 @@ where $W_U \in \mathbb{R}^{d \times V}$ is the unembedding matrix (often the tra
 
 Apply softmax to get probability distribution over the vocabulary at each position:
 
-$$P(w_t \mid w_{<t}) = \text{softmax}(\text{logits}_t) \quad \in \mathbb{R}^{V}$$
+$$P(w_t \mid w_{\lt t}) = \text{softmax}(\text{logits}_t) \quad \in \mathbb{R}^{V}$$
 
 **SFT training loss:**
 
 Cross-entropy between the model's predictions and the actual demonstration tokens (computed only over the demonstration portion, not the prompt):
 
-$$\mathcal{L}_{\text{SFT}} = -\frac{1}{T_{\text{demo}}} \sum_{t \in \text{demo}} \log P_\theta(w_t \mid w_{<t})$$
+$$\mathcal{L}_{\text{SFT}} = -\frac{1}{T_{\text{demo}}} \sum_{t \in \text{demo}} \log P_\theta(w_t \mid w_{\lt t})$$
 
 **Worked example (single token prediction):**
 
@@ -283,7 +283,7 @@ For each generated token $w_t$, compare the RL policy's probability to the froze
 
 The total KL penalty is the sum (or average) of these per-token values:
 
-$$\text{KL} = \sum_t \log \frac{\pi^{RL}_\phi(w_t \mid w_{<t}, x)}{\pi^{SFT}(w_t \mid w_{<t}, x)}$$
+$$\text{KL} = \sum_t \log \frac{\pi^{RL}_\phi(w_t \mid w_{\lt t}, x)}{\pi^{SFT}(w_t \mid w_{\lt t}, x)}$$
 
 Notice "caused" has a high KL contribution (0.588) — the RL policy is much more confident about this word than the SFT model. This token contributes the most penalty.
 

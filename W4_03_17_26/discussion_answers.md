@@ -254,3 +254,104 @@ The paper itself highlights this concern: when explicitly prompted to be toxic, 
 - The same capability that lets it follow "explain quantum physics simply" also lets it follow "write a convincing scam email"
 
 Mitigations include refusal training (teaching the model to decline harmful requests), output filtering, and use-case restrictions. But the tension is fundamental: instruction-following capability is inherently dual-use. The paper argues that alignment techniques (including refusal) are still net positive, but acknowledges the risk.
+
+---
+
+## Truthfulness: Precision vs. Recall
+
+**31. Is "improved truthfulness" meaningful without measuring recall?**
+
+This is an important critique. The paper partially addresses it by measuring "truthful *and* informative" as a joint metric on TruthfulQA (Figure 6) — a response that just says "I don't know" would be truthful but not informative, so it wouldn't score well on the joint metric. The paper also notes that PPO models "err on the side of being truthful and uninformative rather than confidently saying a falsehood," which is exactly the precision/recall tradeoff in action.
+
+However, the paper does not formalize this tradeoff or measure it systematically. There is no explicit measurement of how often InstructGPT refuses to answer vs. GPT-3. This is a real gap.
+
+Relevant follow-up work:
+- **TruthfulQA** (Lin et al., 2021) does measure truthfulness and informativeness separately, which is a step toward precision/recall decomposition
+- **Calibration research** studies whether models know when they don't know — a well-calibrated model would refuse when uncertain (high precision) and answer when confident (high recall)
+- **Selective prediction / abstention** is the ML framework that formalizes this: the model can choose to abstain, and you measure the tradeoff between coverage (how often it answers) and accuracy (how often it's right when it does answer)
+- **FActScore** (Min et al., 2023) decomposes long-form generations into individual atomic facts and measures precision and recall separately — this is closer to what you're describing
+- The broader question of "is it better to be wrong or to be silent?" has no universal answer and depends on the deployment context (a medical chatbot should refuse more; a creative writing tool should refuse less)
+
+---
+
+## Dataset Size & Scaling
+
+**32. Is 13k/33k/31k the minimum viable dataset size?**
+
+The paper doesn't explore this question, but the datasets are remarkably small:
+- SFT: ~13k demonstrations (vs. GPT-3's ~300B token pretraining corpus — a ratio of roughly 1:23,000,000)
+- RM: ~33k rankings
+- PPO: ~31k prompts
+
+This works because the model already has strong capabilities from pretraining. The RLHF data doesn't teach language — it teaches *behavior*. Think of it as a small rudder steering a very large ship. There's likely a minimum below which it stops working (too few demonstrations to establish a consistent behavioral pattern), but the paper doesn't identify it.
+
+Some relevant follow-up work:
+- **LIMA** (Zhou et al., 2023) showed that as few as 1,000 carefully curated demonstrations can be sufficient for SFT, suggesting quality matters far more than quantity at this scale
+- **Stiennon et al. (2020)**, the predecessor paper on summarization, used smaller datasets and still got meaningful improvements, suggesting the floor is fairly low for focused tasks
+
+**33. Do we get more value from doing it longer/bigger?**
+
+Almost certainly yes, but with diminishing returns. The paper shows that training SFT for 16 epochs (despite overfitting after 1) continues to improve human preference, suggesting the model is still extracting behavioral signal even when loss has plateaued. For the RM, more comparison data should improve the reward signal's quality, which downstream improves PPO. However:
+- Demonstration data is expensive to produce (~$25-50/hour for skilled labelers writing high-quality demonstrations)
+- Ranking data is cheaper (labelers just rank existing outputs) but still requires human effort
+- There is likely a point of diminishing returns where the RM is already good enough and more data doesn't materially improve the final policy
+
+No published scaling laws exist specifically for RLHF data as of this paper.
+
+**34. Can the expected result be predicted from dataset size?**
+
+Not yet in any reliable way. For pretraining, we have Chinchilla-style scaling laws that predict loss from compute, data, and parameters. No equivalent exists for RLHF because:
+- The "loss" (human preference rate) is harder to formalize than pretraining loss
+- The pipeline has three interacting stages — you'd need to model how SFT data size affects RM quality, which affects PPO performance
+- The quality and diversity of the data matters more than quantity (1,000 excellent demonstrations might beat 10,000 mediocre ones)
+
+This is an open research direction. Some work on "data-efficient RLHF" has started to emerge, but comprehensive scaling laws for alignment data remain missing.
+
+---
+
+## Task Design & Feedback Dimensionality
+
+**35. How meaningful is a single ranking for open-ended tasks?**
+
+This is a fundamental limitation of the approach. When a labeler ranks story A above story B, the RM only learns that A > B — not *why*. The "why" could be any combination of: better plot, more creative, better grammar, appropriate length, more engaging opening, etc. The RM collapses all of these dimensions into a single scalar score.
+
+In practice, the RM likely learns shallow heuristics that correlate with human preference — such as response length, confident tone, structured formatting, and vocabulary level. This is partly why reward hacking is possible: the model can game these shallow features without genuine quality improvement.
+
+The paper mitigates this somewhat through volume — with 33k rankings across diverse prompts, the RM sees enough examples that some deeper quality signals emerge statistically. But for any individual creative prompt, the feedback is indeed impoverished.
+
+Possible improvements (explored in later work):
+- **Multi-dimensional reward models** that output separate scores for different quality aspects (helpfulness, creativity, accuracy, safety)
+- **Natural language feedback** where labelers explain *why* one response is better, and the model learns from the explanation
+- **Constitutional AI** where principles (not just rankings) guide the model
+- **Process reward models** that evaluate reasoning steps rather than just final outputs
+
+**36. Does the form of the task affect what RLHF learns?**
+
+Almost certainly yes. The paper's prompt distribution (Table 1) is dominated by open-ended generation (45.6%) and brainstorming (11.2%), with smaller portions for QA, classification, and other structured tasks. This means the RM is trained predominantly on open-ended tasks where quality is subjective.
+
+For factual Q&A, the RM should learn relatively clear preferences (correct answer > incorrect answer). For creative writing, the RM learns a noisier signal (one labeler's preferred story style > another's). Mixing these in the same RM could create tension — the RM might apply "be creative and expansive" preferences to factual tasks where "be concise and accurate" is more appropriate.
+
+The paper doesn't analyze whether the RM performs differently across task types, but this is a reasonable concern. Later systems often use task-specific evaluation criteria or multiple specialized reward models.
+
+---
+
+## Model Sizes
+
+**37. How do the different model sizes (1.3B, 6B, 175B) relate to each other?**
+
+The 1.3B, 6B, and 175B models are from the GPT-3 model family (Brown et al., 2020). They are **separate models trained from scratch** with different architectures (fewer layers, smaller hidden dimensions), not distilled or pruned from the 175B model:
+
+| Size | Layers | Hidden dim | Attention heads |
+|------|--------|-----------|----------------|
+| 1.3B | 24 | 2,048 | 16 |
+| 6B | 32 | 4,096 | 16 |
+| 175B | 96 | 12,288 | 96 |
+
+All three are trained on the same pretraining data, then each goes through the same RLHF pipeline (SFT → RM → PPO) independently. The 6B RM is used for all three model sizes.
+
+Could you go bigger than 175B? In principle yes, but:
+- RLHF cost scales with model size (each forward pass during PPO is more expensive)
+- The 175B RM was already unstable — a reward model for an even larger policy would need careful engineering
+- Later models (GPT-4, Claude, etc.) are believed to be larger and do use RLHF-like techniques, confirming that the approach scales, though the exact details are proprietary
+
+Could you go smaller? The paper's finding that 1.3B InstructGPT beats 175B GPT-3 suggests RLHF has outsized impact on smaller models. But there's likely a floor below which the base model simply can't express the desired behaviors — a model too small to write coherent paragraphs can't benefit from "write helpful paragraphs" training.

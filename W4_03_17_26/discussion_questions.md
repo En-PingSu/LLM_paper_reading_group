@@ -87,6 +87,36 @@
 
 ---
 
+## Truthfulness: Precision vs. Recall
+
+31. **Is "improved truthfulness" meaningful without measuring recall?** The paper claims InstructGPT is ~2x more truthful than GPT-3 on TruthfulQA. But what if the model achieves this by refusing to answer more often (e.g., "I don't know")? A model that always says "I don't know" would have perfect precision (never says anything false) but zero recall (never provides useful information). The paper measures "truthful *and* informative" jointly, but is this sufficient? Is there a precision/recall tradeoff in LLM truthfulness, and are there papers that formalize this?
+
+---
+
+## Dataset Size & Scaling
+
+32. **Is 13k/33k/31k the minimum viable dataset size?** The SFT dataset has ~13k demonstrations, the RM dataset has ~33k rankings, and the PPO dataset has ~31k prompts. These are incredibly small compared to pretraining corpora. Is there a minimum dataset size below which RLHF stops working? Has anyone studied the scaling behavior of RLHF data?
+
+33. **Do we get more value from doing it longer/bigger?** If we doubled or 10x'd the demonstration and ranking data, would alignment improve proportionally? Are there diminishing returns? The paper doesn't explore this — are there follow-up studies that do?
+
+34. **Can the expected result be predicted from dataset size?** With pretraining, we have scaling laws (Chinchilla, etc.) that predict loss from compute/data/parameters. Do analogous scaling laws exist for RLHF? Can we predict how much alignment data is needed for a given model size?
+
+---
+
+## Task Design & Feedback Dimensionality
+
+35. **How meaningful is a single ranking for open-ended tasks?** Many prompts are open-ended (e.g., "Write a story about a wise frog"). For these tasks, the space of "good responses" is enormous — a good story could vary in length, structure, tone, plot, vocabulary, and creativity. Yet the labeler provides only a single ranking (A > B > C > D). This collapses all dimensions of quality into one ordinal signal. Does the model learn *why* one story is better, or does it overfit to shallow features like length or structure?
+
+36. **Does the form of the task affect what RLHF learns?** Open-ended creative tasks (stories, brainstorming) have subjective, high-dimensional quality. Factual tasks (Q&A, classification) have more objective, low-dimensional quality. Does the RLHF pipeline work equally well for both? Could mixing these task types in the same training run cause the RM to learn inconsistent preferences?
+
+---
+
+## Model Sizes
+
+37. **How do the different model sizes (1.3B, 6B, 175B) relate to each other?** The paper evaluates InstructGPT at three sizes. Are these simply smaller versions of GPT-3 trained on the same data with fewer layers/parameters? What is the process for creating smaller variants — is it training from scratch with a smaller architecture, or distillation from the larger model? Can we go bigger than 175B with RLHF, and what challenges would arise?
+
+---
+
 ## Broader Questions
 
 28. **What has changed since this paper was published (2022)?** Modern systems like ChatGPT, Claude, and Gemini all build on RLHF or similar techniques. What improvements have been made? What problems identified in this paper remain unsolved?

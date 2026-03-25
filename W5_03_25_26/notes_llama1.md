@@ -157,7 +157,7 @@ Where:
 - $\mathrm{SiLU}(z) = z \cdot \sigma(z)$ (Sigmoid Linear Unit, also called "Swish")
 - $\otimes$ denotes element-wise multiplication
 - $W_\mathrm{gate}$ and $W_\mathrm{up}$ are two separate "up-projection" matrices
-- The gated branch ($\mathrm{SiLU}(W_\mathrm{gate} \, x)$) controls how much of the other branch ($W_\mathrm{up} \, x$) passes through
+- The gated branch (SiLU($W_{gate}$ x)) controls how much of the other branch ($W_{up}$ x) passes through
 
 **Dimensions** (for the 7B model, $d = 4{,}096$):
 

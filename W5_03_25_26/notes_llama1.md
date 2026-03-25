@@ -154,28 +154,28 @@ LLaMA replaces this with the **SwiGLU** activation function, which uses a gating
 $$\text{FFN}_{\text{SwiGLU}}(x) = W_2 \cdot (\text{SiLU}(W_{\text{gate}} x) \otimes W_{\text{up}} x)$$
 
 Where:
-- $\text{SiLU}(z) = z \cdot \sigma(z)$ (Sigmoid Linear Unit, also called "Swish")
+- $\mathrm{SiLU}(z) = z \cdot \sigma(z)$ (Sigmoid Linear Unit, also called "Swish")
 - $\otimes$ denotes element-wise multiplication
-- $W_{\text{gate}}$ and $W_{\text{up}}$ are two separate "up-projection" matrices
-- The gated branch ($\text{SiLU}(W_{\text{gate}} x)$) controls how much of the other branch ($W_{\text{up}} x$) passes through
+- $W_\mathrm{gate}$ and $W_\mathrm{up}$ are two separate "up-projection" matrices
+- The gated branch ($\mathrm{SiLU}(W_\mathrm{gate} \, x)$) controls how much of the other branch ($W_\mathrm{up} \, x$) passes through
 
 **Dimensions** (for the 7B model, $d = 4{,}096$):
 
 | Component | Original Transformer (ReLU) | LLaMA (SwiGLU) |
 |-----------|---------------------------|-----------------|
-| Up-projection | $W_1 \in \mathbb{R}^{d \times 4d}$ (4,096 → 16,384) | $W_{\text{gate}}, W_{\text{up}} \in \mathbb{R}^{d \times \frac{2}{3} \cdot 4d}$ (4,096 → 11,008) |
+| Up-projection | $W_1 \in \mathbb{R}^{d \times 4d}$ (4,096 → 16,384) | $W_\mathrm{gate}, W_\mathrm{up} \in \mathbb{R}^{d \times \frac{2}{3} \cdot 4d}$ (4,096 → 11,008) |
 | Down-projection | $W_2 \in \mathbb{R}^{4d \times d}$ (16,384 → 4,096) | $W_2 \in \mathbb{R}^{\frac{2}{3} \cdot 4d \times d}$ (11,008 → 4,096) |
 | Hidden dimension | $4d = 16{,}384$ | $\frac{2}{3} \times 4d \approx 10{,}922$ → rounded to 11,008 (multiple of 256) |
 | Parameters per layer | $2 \times d \times 4d = 2 \times 4{,}096 \times 16{,}384$ | $3 \times d \times \frac{2}{3} \times 4d = 3 \times 4{,}096 \times 11{,}008$ |
 
-The $\frac{2}{3}$ factor compensates for the extra matrix ($W_{\text{gate}}$), keeping the total parameter count roughly the same as ReLU while improving performance.
+The $\frac{2}{3}$ factor compensates for the extra matrix ($W_\mathrm{gate}$), keeping the total parameter count roughly the same as ReLU while improving performance.
 
 ### Modification 3: Rotary Positional Embeddings (RoPE)
 *Inspired by: GPTNeo (Su et al., 2021)*
 
 The original Transformer adds **learned absolute position embeddings** to the token embeddings:
 
-$$X_0 = X_{\text{embed}} + W_P$$
+$$X_0 = X_\mathrm{embed} + W_P$$
 
 where $W_P \in \mathbb{R}^{T \times d}$ is a learned matrix (one vector per position). The problem: this doesn't generalize well to sequences longer than seen during training.
 

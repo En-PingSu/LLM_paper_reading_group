@@ -301,7 +301,7 @@ $$R_c(g \mid p) = \begin{cases} R_s(g \mid p) & \text{if } \texttt{is\_safety}(p
 - For safety-sensitive prompts (tagged in the dataset) OR when the safety RM gives a low score (<0.15): use the **Safety RM** score
 - For everything else: use the **Helpfulness RM** score
 - The threshold 0.15 gives precision 0.89 and recall 0.55 on the Meta Safety test set
-- Final scores are whitened: $\tilde{R}_c = \text{WHITEN}(\text{LOGIT}(R_c))$ — the sigmoid is reversed and scores are normalized for stability
+- Final scores are whitened: $\tilde{R}_c = \mathrm{WHITEN}(\mathrm{LOGIT}(R_c))$ — the sigmoid is reversed and scores are normalized for stability
 
 **PPO hyperparameters:**
 - AdamW: $\beta_1 = 0.9$, $\beta_2 = 0.95$, eps = $10^{-5}$

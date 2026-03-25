@@ -177,15 +177,31 @@ The original Transformer adds **learned absolute position embeddings** to the to
 
 $$X_0 = X_\mathrm{embed} + W_P$$
 
-where $W_P \in \mathbb{R}^{T \times d}$ is a learned matrix (one vector per position). The problem: this doesn't generalize well to sequences longer than seen during training.
+Where:
+- $X_0$ = the input to the first transformer layer (what the model actually processes)
+- $X_\mathrm{embed}$ = token embeddings (each token mapped to a $d$-dimensional vector via the embedding table)
+- $W_P \in \mathbb{R}^{T \times d}$ = a learned positional embedding matrix — one $d$-dimensional vector for each of the $T$ possible positions
+- $T$ = maximum sequence length (2,048 for LLaMA), $d$ = model dimension (e.g., 4,096 for LLaMA-7B)
+
+The problem: because $W_P$ has exactly $T$ rows, the model has no learned representation for position $T+1$. This means it doesn't generalize well to sequences longer than seen during training.
 
 LLaMA replaces this with **Rotary Position Embeddings (RoPE)**, which encode position information directly into the attention computation. Instead of adding position vectors to the input, RoPE applies a rotation to the query and key vectors at each position:
 
 $$\tilde{q}_t = R_t \cdot q_t, \quad \tilde{k}_s = R_s \cdot k_s$$
 
-where $R_t$ is a rotation matrix determined by position $t$. The attention score between positions $t$ and $s$ then depends on the *relative* distance $(t - s)$:
+Where:
+- $q_t$ = the query vector at position $t$ (produced by the attention layer's $W_Q$ projection)
+- $k_s$ = the key vector at position $s$ (produced by $W_K$)
+- $R_t$ = a rotation matrix determined by position $t$ — this is **not learned**, it's a fixed function of the position using sinusoidal frequencies (similar in spirit to the original Transformer's sinusoidal encodings, but applied as a rotation rather than an addition)
+- $\tilde{q}_t$, $\tilde{k}_s$ = the position-encoded query and key vectors
+
+The attention score between positions $t$ and $s$ then depends on the *relative* distance $(t - s)$:
 
 $$\tilde{q}_t^T \tilde{k}_s = q_t^T R_{t-s} k_s$$
+
+Where:
+- $R_{t-s}$ = a rotation that depends only on the *distance* between the two positions, not their absolute values — so positions (5, 3) and (100, 98) produce the same rotation since both have distance 2
+- The superscript $T$ in $q_t^T$ denotes the **transpose** (turning a column vector into a row vector for the dot product), not the sequence length
 
 **Why this matters:**
 - **Relative position:** Attention scores depend on the *distance* between tokens, not their absolute positions — more natural for language

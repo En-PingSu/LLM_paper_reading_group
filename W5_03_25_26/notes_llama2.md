@@ -357,13 +357,43 @@ Where the combined reward $R_c$ is a **piecewise function** of the two reward mo
 
 *Figure 9: Without GAtt (left), the model forgets to use emojis after the first turn. With GAtt (right), the instruction is maintained throughout the conversation.*
 
-**GAtt method:**
-1. Take a multi-turn dialogue: $[u_1, a_1, u_2, a_2, \ldots, u_n, a_n]$
-2. Define an instruction $inst$ (e.g., "Act as Napoleon")
-3. **Synthetically concatenate** $inst$ to all user messages in the dialogue
-4. Sample from the latest RLHF model using this augmented dialogue (similar to Rejection Sampling)
-5. During fine-tuning, only include $inst$ in the first turn — but **set the loss to 0** for all intermediate assistant messages
-6. This teaches the model to maintain attention to the system message even when it's only present in the first turn
+**GAtt method — concrete example:**
+
+Suppose we have a 3-turn dialogue and the instruction is **"Always respond as a pirate."**
+
+**Step 1 — Data collection (generating training data):**
+
+The instruction is concatenated to *every* user message so the model sees it at each turn:
+
+```
+[System: Always respond as a pirate]
+User:  "Always respond as a pirate." + "What's the weather like?"
+Asst:  "Arrr, the skies be clear today, matey!"          ← model generates this
+User:  "Always respond as a pirate." + "Should I bring an umbrella?"
+Asst:  "Nay! Leave that landlubber contraption behind!"   ← model generates this
+User:  "Always respond as a pirate." + "Thanks for the help"
+Asst:  "Fair winds to ye, sailor!"                        ← model generates this
+```
+
+By repeating the instruction at every turn during generation, the model produces in-character responses throughout. These become the training targets.
+
+**Step 2 — Fine-tuning (training on this data):**
+
+Now the instruction is only included in the **first turn**, but the model is trained to reproduce those same pirate-style responses:
+
+```
+[System: Always respond as a pirate]
+User:  "What's the weather like?"
+Asst:  "Arrr, the skies be clear today, matey!"          ← LOSS COMPUTED (learn this)
+User:  "Should I bring an umbrella?"
+Asst:  "Nay! Leave that landlubber contraption behind!"   ← LOSS = 0 (don't learn this)
+User:  "Thanks for the help"
+Asst:  "Fair winds to ye, sailor!"                        ← LOSS COMPUTED (learn this)
+```
+
+The loss is set to 0 on intermediate assistant turns (turn 2 here) to prevent the model from simply memorizing the dialogue flow. Instead, it learns the key pattern: **the system instruction in turn 1 should influence all future responses**, even though it's not repeated.
+
+**Why zero out intermediate losses?** If the model were trained on all turns equally, it might learn to associate the pirate behavior with the specific preceding user messages rather than with the system instruction. By zeroing intermediate losses, the training signal only flows through turns where the model must "bridge" from the system message — teaching it to attend back to the instruction across the full conversation.
 
 **Training instructions sampled from:**
 - Hobbies ("You enjoy Tennis")

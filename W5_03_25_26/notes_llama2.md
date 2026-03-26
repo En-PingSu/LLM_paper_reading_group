@@ -295,7 +295,10 @@ $$R(g \mid p) = \tilde{R}_c(g \mid p) - \beta D_{KL}(\pi_\theta(g \mid p) \| \pi
 
 Where the combined reward $R_c$ is a **piecewise function** of the two reward models:
 
-$$R_c(g \mid p) = \begin{cases} R_s(g \mid p) & \text{if } \texttt{is\_safety}(p) \text{ or } R_s(g \mid p) < 0.15 \\ R_h(g \mid p) & \text{otherwise} \end{cases}$$
+| Condition | Reward used |
+|-----------|------------|
+| Prompt is tagged as safety-sensitive, **OR** the Safety RM score $R_s(g \mid p) < 0.15$ | $R_c = R_s(g \mid p)$ (Safety RM) |
+| Otherwise | $R_c = R_h(g \mid p)$ (Helpfulness RM) |
 
 **How this works:**
 - For safety-sensitive prompts (tagged in the dataset) OR when the safety RM gives a low score (<0.15): use the **Safety RM** score

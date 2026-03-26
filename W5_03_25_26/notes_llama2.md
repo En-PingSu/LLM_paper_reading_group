@@ -289,9 +289,28 @@ After rejection sampling, PPO is applied on top. The objective:
 
 $$\arg \max_\pi E_{p \sim D, g \sim \pi}[R(g \mid p)]$$
 
+Where:
+- $\pi$ = the policy (the language model we're optimizing — its weights determine how it generates text)
+- $\arg \max_\pi$ = "find the policy $\pi$ that maximizes..."
+- $p \sim D$ = prompts $p$ sampled from the dataset $D$ of training prompts
+- $g \sim \pi$ = generations $g$ sampled from the current policy (i.e., the model generates a response to prompt $p$)
+- $R(g \mid p)$ = the reward assigned to generation $g$ given prompt $p$ (defined below)
+- $E[\cdot]$ = expected value — in practice, averaged over a batch of prompt-generation pairs
+
+In plain English: "Find the model weights that produce responses with the highest average reward across the training prompts."
+
 The reward function used during PPO:
 
 $$R(g \mid p) = \tilde{R}_c(g \mid p) - \beta D_{KL}(\pi_\theta(g \mid p) \| \pi_0(g \mid p))$$
+
+Where:
+- $\tilde{R}_c(g \mid p)$ = the whitened combined reward score (from the Helpfulness or Safety RM — see below)
+- $\beta$ = the KL penalty coefficient — controls how much the model is penalized for deviating from the original SFT model. Set to 0.01 for 7B/13B, 0.005 for 34B/70B
+- $D_{KL}(\pi_\theta \| \pi_0)$ = KL divergence between the current policy $\pi_\theta$ and the reference policy $\pi_0$ (the frozen SFT model). Measures how much the RL-trained model's token-level probability distribution has drifted from the SFT model's
+- $\pi_\theta$ = the current RL policy (the model being trained, with parameters $\theta$)
+- $\pi_0$ = the reference policy (the SFT model, frozen — same role as in InstructGPT W4)
+
+The KL term acts as a leash: it lets the model improve via the reward signal but prevents it from straying so far from the SFT model that it starts "reward hacking" — exploiting quirks in the reward model rather than genuinely improving.
 
 Where the combined reward $R_c$ is a **piecewise function** of the two reward models:
 

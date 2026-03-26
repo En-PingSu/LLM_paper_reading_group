@@ -259,6 +259,19 @@ LLaMA is evaluated on 20 benchmarks using **zero-shot** and **few-shot** setting
 
 ### Common Sense Reasoning (Zero-shot)
 
+**What each benchmark tests:**
+
+| Benchmark | What It Tests | Format |
+|-----------|--------------|--------|
+| **BoolQ** | Reading comprehension — answer yes/no questions about a short passage | Yes/No given a passage + question |
+| **PIQA** | Physical intuition — which approach achieves a physical goal? (e.g., "To clean a mirror, you should use...") | 2-choice completion |
+| **SIQA** | Social/emotional reasoning — predict reactions and motivations in social situations | 3-choice completion |
+| **HellaSwag** | Sentence completion — pick the most plausible continuation of an everyday activity description | 4-choice completion |
+| **WinoGrande** | Coreference resolution — determine which noun a pronoun refers to in ambiguous sentences | 2-choice (fill in the blank) |
+| **ARC-e** | Grade-school science questions (Easy set) — straightforward factual science | 4-choice multiple choice |
+| **ARC-c** | Grade-school science questions (Challenge set) — requires multi-step reasoning or world knowledge | 4-choice multiple choice |
+| **OBQA** | Open-domain science questions requiring combining a core fact with broad common knowledge | 4-choice multiple choice |
+
 | | BoolQ | PIQA | SIQA | HellaSwag | WinoGrande | ARC-e | ARC-c | OBQA |
 |---|-------|------|------|-----------|------------|-------|-------|------|
 | GPT-3 175B | 60.5 | 81.0 | - | 78.9 | 70.2 | 68.8 | 51.4 | 57.6 |

@@ -412,7 +412,7 @@ GAtt is consistent up to **20+ turns** until the maximum context length is reach
 
 ![Figure 11: Evolution of Llama 2-Chat. Each RLHF iteration improves both helpfulness and safety.](figures/llama2_fig11_evolution.png)
 
-*Figure 11: Left: judged by Meta's own reward models. Right: judged by GPT-4 (more neutral). After RLHF-V3, Llama 2-Chat surpasses ChatGPT on both axes (>50% win rate).*
+*Figure 11: Win rate % of Llama 2-Chat vs ChatGPT across RLHF iterations. Left: judged by Meta's own reward models (which may favor Llama 2-Chat). Right: judged by GPT-4 (more neutral). Each iteration improves both helpfulness and harmlessness. On the GPT-4 judge (right), only the final RLHF-V5 variants exceed 50% win rate on both axes — earlier versions like RLHF-V3 (~48% helpfulness, ~40% harmlessness) still lose to ChatGPT overall. The Meta RM judge (left) is more generous, showing >50% on both axes from RLHF-V3 onward, but this likely reflects bias from evaluating with the same reward models used during training.*
 
 ### Human Evaluation
 

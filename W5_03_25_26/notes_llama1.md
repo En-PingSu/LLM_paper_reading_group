@@ -286,6 +286,13 @@ LLaMA is evaluated on 20 benchmarks using **zero-shot** and **few-shot** setting
 
 ### Closed-Book Question Answering
 
+**What each benchmark tests:**
+
+| Benchmark | What It Tests | Format |
+|-----------|--------------|--------|
+| **NaturalQuestions** | Factual knowledge recall — answer real Google search queries using only knowledge stored in model weights (no retrieval) | Open-ended short answer, scored by exact match against gold answers |
+| **TriviaQA** | Trivia knowledge recall — answer trivia questions from quiz league/trivia websites, again closed-book | Open-ended short answer, scored by exact match |
+
 **NaturalQuestions (Exact Match):**
 
 | | 0-shot | 1-shot | 5-shot | 64-shot |
@@ -310,6 +317,14 @@ LLaMA-65B achieves **state-of-the-art** on both QA benchmarks in zero-shot and f
 
 ### Mathematical Reasoning
 
+**What each benchmark tests:**
+
+| Benchmark | What It Tests | Format |
+|-----------|--------------|--------|
+| **MATH** | Competition-level math problems (AMC, AIME, etc.) covering algebra, geometry, number theory, counting, probability | Free-form solution, scored by exact match on the final numerical/symbolic answer |
+| **GSM8k** | Grade-school math word problems requiring 2–8 step arithmetic reasoning (e.g., "If Maria has 3 apples and buys 5 more...") | Free-form chain-of-thought solution, scored by exact match on the final number |
+| **+maj1@k** | Majority voting — generate $k$ solutions and take the most common final answer. Measures whether the model can *sometimes* get it right even if not consistently | Same as base benchmark, but aggregated over $k$ samples |
+
 | | MATH | +maj1@k | GSM8k | +maj1@k |
 |---|------|---------|-------|---------|
 | PaLM 62B | 4.4 | - | 33.0 | - |
@@ -325,6 +340,15 @@ LLaMA-65B outperforms Minerva-62B on GSM8k despite not being fine-tuned on math 
 
 ### Code Generation (pass@)
 
+**What each benchmark tests:**
+
+| Benchmark | What It Tests | Format |
+|-----------|--------------|--------|
+| **HumanEval** | Functional code generation — write a Python function given a docstring specification (164 problems, hand-written by OpenAI) | Generate a function body; tested against hidden unit tests |
+| **MBPP** | Mostly Basic Python Problems — simpler Python programming tasks (974 problems, crowd-sourced) | Generate a function; tested against 3 assertion-based test cases per problem |
+| **@1** | pass@1 — generate a single solution and check if it passes. Measures the model's ability to get it right on the first try | Single generation |
+| **@k** (e.g., @80, @100) | pass@k — generate $k$ solutions and check if *any* pass. Measures whether the model *can* produce a correct solution given enough attempts | $k$ generations, success if $\geq 1$ passes |
+
 | | Params | HumanEval @1 | @100 | MBPP @1 | @80 |
 |---|--------|------|------|------|------|
 | LaMDA | 137B | 14.0 | 47.3 | 14.8 | 62.4 |
@@ -337,6 +361,16 @@ LLaMA-65B outperforms Minerva-62B on GSM8k despite not being fine-tuned on math 
 LLaMA-13B outperforms LaMDA-137B on both HumanEval and MBPP.
 
 ### Massive Multitask Language Understanding (MMLU, 5-shot)
+
+**What this benchmark tests:**
+
+| Benchmark | What It Tests | Format |
+|-----------|--------------|--------|
+| **MMLU** | Broad academic knowledge across 57 subjects — tests whether the model has absorbed factual and conceptual knowledge from its training data | 4-choice multiple choice, 5-shot (5 example Q&As provided before the test question) |
+| **Humanities** | Literature, history, philosophy, law, etc. | Subset of MMLU |
+| **STEM** | Math, physics, chemistry, computer science, engineering, etc. | Subset of MMLU |
+| **Social Sciences** | Economics, psychology, sociology, political science, etc. | Subset of MMLU |
+| **Other** | Business, health, miscellaneous professional knowledge | Subset of MMLU |
 
 | | Humanities | STEM | Social Sciences | Other | Average |
 |---|-----------|------|-----------------|-------|---------|

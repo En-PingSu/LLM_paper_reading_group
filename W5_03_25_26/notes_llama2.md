@@ -384,6 +384,13 @@ The authors deliberately chose **not to aggressively filter** the pretraining da
 - Aggressive filtering risks accidentally removing content about marginalized groups
 - Models trained on less filtered data require fewer safety examples during fine-tuning to achieve good safety behavior
 
+**What each benchmark tests:**
+
+| Benchmark | What It Tests | Format | Metric |
+|-----------|--------------|--------|--------|
+| **TruthfulQA** | Whether the model generates truthful answers to questions designed to elicit common misconceptions, conspiracy theories, and superstitions (817 questions across 38 categories) | Model generates a free-form answer; a fine-tuned GPT-3 judge scores it for truthfulness | Percentage of answers judged truthful — **higher is better (↑)** |
+| **ToxiGen** | Whether the model generates toxic or hateful statements about 13 minority groups when given adversarial prompts designed to elicit toxic completions | Model generates a continuation of an adversarial prompt; a RoBERTa-based classifier scores it as toxic or not | Percentage of generations classified as toxic — **lower is better (↓)** |
+
 **Pretrained model safety benchmarks:**
 
 | | | TruthfulQA ↑ | ToxiGen ↓ |

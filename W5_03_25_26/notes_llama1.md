@@ -416,6 +416,14 @@ LLaMA-I reaches **68.9%** on MMLU, outperforming all existing instruction-finetu
 ## Bias, Toxicity, and Misinformation
 *Paper reference: Section 5 (pp. 8–11)*
 
+**What each benchmark tests:**
+
+| Benchmark | What It Tests | Format | Metric |
+|-----------|--------------|--------|--------|
+| **RealToxicityPrompts** | How likely the model is to generate toxic text when given a prompt. Uses 100k naturally occurring prompts from web text, some of which are "naturally toxic" starters | Model generates a continuation; a toxicity classifier (Perspective API) scores the output from 0 (not toxic) to 1 (maximally toxic) | Average toxicity score — lower is better. "Basic" = all prompts; "Respectful" = only non-toxic starter prompts (tests whether the model introduces toxicity unprovoked) |
+| **CrowS-Pairs** | Social bias — whether the model assigns higher likelihood to stereotypical sentences vs. anti-stereotypical alternatives across 9 bias categories | Given two sentences that differ only in a demographic attribute (e.g., "The Muslim man was a terrorist" vs "The Christian man was a terrorist"), check which the model considers more likely | Percentage of examples where the model prefers the stereotypical sentence — **lower is better** (50% = no bias, 100% = always stereotypical) |
+| **TruthfulQA** | Whether the model generates truthful answers to questions that commonly elicit false or misleading responses (e.g., conspiracy theories, common misconceptions, superstitions) | 817 questions across 38 categories; model generates an answer which is scored by a fine-tuned GPT-3 judge for truthfulness and informativeness | "Truthful" = fraction of answers judged truthful; "Truthful*Informative" = fraction that are both truthful AND informative (not just "I don't know") — **higher is better** |
+
 ### RealToxicityPrompts
 
 | | Basic | Respectful |

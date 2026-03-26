@@ -323,7 +323,9 @@ Where the combined reward $R_c$ is a **piecewise function** of the two reward mo
 - For safety-sensitive prompts (tagged in the dataset) OR when the safety RM gives a low score (<0.15): use the **Safety RM** score
 - For everything else: use the **Helpfulness RM** score
 - The threshold 0.15 gives precision 0.89 and recall 0.55 on the Meta Safety test set
-- Final scores are whitened: $\tilde{R}_c = \mathrm{WHITEN}(\mathrm{LOGIT}(R_c))$ — the sigmoid is reversed and scores are normalized for stability
+- Final scores are **whitened** before being used as the PPO reward. This is a two-step transformation:
+  1. **LOGIT**: The reward model outputs a score between 0 and 1 (it's passed through a sigmoid). The logit function reverses this: $\mathrm{LOGIT}(x) = \log(x / (1 - x))$, mapping the score back to an unbounded range $(-\infty, +\infty)$. This undoes the sigmoid compression so that differences between scores are more meaningful (a jump from 0.9 to 0.95 becomes much larger than a jump from 0.5 to 0.55).
+  2. **WHITEN**: Subtract the mean and divide by the standard deviation across the batch: $\mathrm{WHITEN}(x) = (x - \mu) / \sigma$. This normalizes the reward signal so PPO sees a consistent gradient scale regardless of the raw reward distribution — without this, the PPO updates would be unstable because reward magnitudes shift as the model improves across RLHF iterations.
 
 **PPO hyperparameters:**
 - AdamW: $\beta_1 = 0.9$, $\beta_2 = 0.95$, eps = $10^{-5}$

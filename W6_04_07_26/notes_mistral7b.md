@@ -108,7 +108,7 @@ This means that while each individual attention layer is local, the model can in
 
 ![Figure 1: Sliding Window Attention](figures/mistral7b_fig1_sliding_window_attention.png)
 
-*Figure 1: Comparison of attention patterns. Left: Vanilla attention where every token attends to all previous tokens ($O(n^2)$). Center: Sliding window attention where each token attends to $W$ previous tokens. Right: The effective attention span after stacking layers — information from token 1 can reach token $3W+1$ after 3 layers.*
+*Figure 1: Comparison of attention patterns. Left: Vanilla attention where every token attends to all previous tokens (O(n^2)). Center: Sliding window attention where each token attends to W previous tokens. Right: The effective attention span after stacking layers — information from token 1 can reach token 3W+1 after 3 layers.*
 
 ```
 Vanilla Attention (layer k):          Sliding Window Attention (layer k):
@@ -140,7 +140,7 @@ When $i > W$, new entries overwrite the oldest ones — but those old entries ar
 
 ![Figure 2: Rolling Buffer Cache](figures/mistral7b_fig2_rolling_buffer_cache.png)
 
-*Figure 2: The rolling buffer cache. Keys and values are stored at position $i \mod W$. When position $i$ exceeds $W$, old values are overwritten. This keeps the cache at a constant size of $W$ regardless of sequence length.*
+*Figure 2: The rolling buffer cache. Keys and values are stored at position i mod W. When position i exceeds W, old values are overwritten. This keeps the cache at a constant size of W regardless of sequence length.*
 
 **Worked example:**
 

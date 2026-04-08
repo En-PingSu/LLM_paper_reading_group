@@ -47,7 +47,7 @@ The model is released under the **Apache 2.0 license** with no restrictions on u
 *Paper reference: Sections 1–5 (pp. 1–6)*
 
 - Mistral 7B (7.3B params) **outperforms LLaMA 2 13B on all benchmarks** and matches or beats LLaMA 2 34B on many tasks — demonstrating that architecture and training quality can compensate for raw parameter count
-- Uses **Sliding Window Attention** with window size $W = 4096$ to reduce attention from $O(n^2)$ to $O(n \times W)$, while achieving a theoretical attention span of $\sim$131K tokens through layer stacking
+- Uses **Sliding Window Attention** with window size $W = 4096$ to reduce attention from $O(n^2)$ to $O(n \times W)$, while achieving a theoretical attention span of ~131K tokens through layer stacking
 - **Rolling Buffer Cache** fixes the KV cache size at $W$ entries regardless of sequence length, reducing cache memory by up to 8x for long sequences
 - Employs **Grouped-Query Attention** with 8 KV heads shared across 32 query heads (4:1 ratio), reducing memory bandwidth during decoding
 - On MMLU, Mistral 7B scores **60.1%** vs. LLaMA 2 7B's 44.4% and LLaMA 2 13B's 55.6% — a 15.7-point improvement over the same-size competitor

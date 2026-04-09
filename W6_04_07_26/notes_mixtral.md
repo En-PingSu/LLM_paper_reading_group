@@ -76,10 +76,10 @@ The model uses a 32k token context window, is released under the **Apache 2.0 li
 | vocab_size | 32000 |
 | num_experts | 8 |
 | top_k_experts | 2 |
-| **Total parameters** | **46.7B** |
-| **Active parameters per token** | **12.9B** |
+| **Total parameters** | **~47B** (the paper rounds to 47B; the community-computed figure is 46.7B) |
+| **Active parameters per token** | **~13B** (the paper rounds to 13B; the community-computed figure is 12.9B) |
 
-The base transformer is identical to Mistral 7B: **RMSNorm** pre-normalization, **SwiGLU** activation in FFN layers, **Rotary Positional Embeddings (RoPE)**, **Grouped-Query Attention (GQA)** with 8 KV heads for 32 query heads, and **Sliding Window Attention (SWA)**. The only architectural change is replacing all 32 FFN blocks with MoE layers.
+The base transformer uses the same modifications as Mistral 7B: **RMSNorm** pre-normalization, **SwiGLU** activation in FFN layers, **Rotary Positional Embeddings (RoPE)**, and **Grouped-Query Attention (GQA)** with 8 KV heads for 32 query heads. Unlike Mistral 7B, Mixtral supports a **fully dense context length of 32k tokens** (the paper does not mention using Sliding Window Attention). The key architectural change is replacing all 32 FFN blocks with MoE layers.
 
 > **Comparison to Mistral 7B (W6 Paper 1):** Mixtral shares the exact same transformer skeleton. The difference is purely in the FFN layers: Mistral 7B has 1 SwiGLU FFN per layer, Mixtral has 8 SwiGLU FFNs (experts) per layer with a router that selects 2. The attention layers, normalization, and positional encoding are unchanged.
 
@@ -192,8 +192,8 @@ Where:
 
 | Model | Active Params | MMLU | HellaS | WinoG | PIQA | Arc-e | Arc-c | NQ | TriQA | HumanE | MBPP | Math | GSM8K |
 |-------|--------------|------|--------|-------|------|-------|-------|----|-------|---------|------|------|-------|
-| LLaMA 2 7B | 7B | 44.4 | 77.1 | 69.5 | 77.9 | 68.7 | 43.2 | 24.7 | 63.8 | 11.6 | 26.1 | 3.9 | 16.0 |
-| LLaMA 2 13B | 13B | 55.6 | 80.7 | 72.9 | 80.8 | 75.2 | 48.8 | 29.0 | 69.6 | 18.9 | 35.4 | 6.0 | 34.3 |
+| LLaMA 2 7B | 7B | 44.4 | 77.1 | 69.5 | 77.9 | 68.7 | 43.2 | 17.5 | 56.6 | 11.6 | 26.1 | 3.9 | 16.0 |
+| LLaMA 2 13B | 13B | 55.6 | 80.7 | 72.9 | 80.8 | 75.2 | 48.8 | 16.7 | 64.0 | 18.9 | 35.4 | 6.0 | 34.3 |
 | LLaMA 1 33B | 33B | 56.8 | 83.7 | 76.2 | 82.2 | 79.6 | 54.4 | 24.1 | 68.5 | 25.0 | 40.9 | 8.4 | 44.1 |
 | LLaMA 2 70B | 70B | 69.9 | 85.4 | 80.4 | 82.6 | 79.9 | 56.5 | 25.4 | 73.0 | 29.3 | 49.8 | 13.8 | 69.6 |
 | Mistral 7B | 7B | 62.5 | 81.0 | 74.2 | 82.2 | 80.5 | 54.9 | 23.2 | 62.5 | 26.2 | 50.2 | 12.7 | 50.0 |
@@ -286,7 +286,7 @@ Mixtral was trained with **significantly upsampled multilingual data** compared 
 ## Long Range Performance
 *Paper reference: Section 3.2 (pp. 6–7)*
 
-Mixtral supports a **32,768-token context window** using fully dense attention (not sliding window at this scale — SWA is used within individual layers but the effective receptive field across layers covers the full context).
+Mixtral supports a **32,768-token context window** using fully dense attention. Unlike Mistral 7B which uses Sliding Window Attention, the Mixtral paper explicitly states it supports "a fully dense context length of 32k tokens."
 
 **Passkey Retrieval:**
 
@@ -350,8 +350,8 @@ Mixtral 8x7B – Instruct was fine-tuned using **Supervised Fine-Tuning (SFT)** 
 
 | Model | MT-Bench | Arena Elo (Dec 2023) |
 |-------|----------|---------------------|
-| GPT-4-Turbo | — | 1217 |
-| GPT-4 | — | 1198 |
+| GPT-4-Turbo | 9.32 | 1243 |
+| GPT-4-0314 | — | 1192 |
 | **Mixtral 8x7B – Instruct** | **8.30** | **1121** |
 | Claude-2.1 | — | 1117 |
 | GPT-3.5-Turbo-0613 | 8.32 | 1117 |
@@ -365,7 +365,7 @@ Mixtral 8x7B – Instruct was fine-tuned using **Supervised Fine-Tuning (SFT)** 
 **Key takeaways:**
 - MT-Bench score of **8.30** is essentially tied with GPT-3.5-Turbo (8.32) — within rounding error
 - Arena Elo of **1121** places Mixtral above Claude-2.1 (1117), GPT-3.5-Turbo (1117), and Gemini Pro (1111)
-- Still a significant gap to GPT-4 (1198) and GPT-4-Turbo (1217)
+- Still a significant gap to GPT-4-0314 (1192) and GPT-4-Turbo (1243)
 - This makes Mixtral – Instruct the **best open-weights model** at time of release
 - The model is released under **Apache 2.0**, allowing unrestricted commercial use — a significant differentiator from LLaMA 2's more restrictive license
 
@@ -446,7 +446,7 @@ The routing analysis reveals that MoE experts in Mixtral function more like **sp
 | **HumanEval** | 29.3 | **40.2** |
 | **Inference cost** | ~5.4x Mixtral | 1x |
 | **Context length** | 4,096 | **32,768** (8x) |
-| **Architecture** | Dense transformer, GQA | MoE transformer, GQA, SWA |
+| **Architecture** | Dense transformer, GQA | MoE transformer, GQA, fully dense 32k context |
 | **Alignment** | SFT + iterative RLHF (RS + PPO) | SFT + DPO (simpler pipeline) |
 | **License** | Research + Commercial (with restrictions) | **Apache 2.0** (unrestricted) |
 
@@ -476,7 +476,7 @@ The routing analysis reveals that MoE experts in Mixtral function more like **sp
 | **SwiGLU** | Swish-Gated Linear Unit — the activation function used in each expert FFN. Combines a gated linear unit with the Swish activation: $\mathrm{SwiGLU}(x) = \mathrm{Swish}(xW_1) \odot (xW_2)$. More expressive than standard ReLU. First used in PaLM, adopted by LLaMA 1 (W5). |
 | **Direct Preference Optimization (DPO)** | An alignment method that directly optimizes a language model from human preference pairs without training a separate reward model. It reparameterizes the RLHF objective so the policy can be optimized with a simple classification-style loss on (preferred, rejected) response pairs. Used for Mixtral – Instruct instead of PPO. |
 | **Load Balancing Loss** | An auxiliary loss term used in some MoE architectures (e.g., GShard, Switch Transformer) to penalize uneven expert utilization and prevent "expert collapse." It encourages the router to distribute tokens evenly across experts. The Mixtral paper does not mention using one, though balanced routing is observed in practice (Section 5, Figure 7). |
-| **Sliding Window Attention (SWA)** | An attention mechanism where each token only attends to a fixed window of nearby tokens (e.g., 4096) rather than the full sequence. Reduces the quadratic cost of attention. In Mixtral, SWA operates within layers but the effective receptive field across stacked layers covers the full 32k context. |
+| **Sliding Window Attention (SWA)** | An attention mechanism where each token only attends to a fixed window of nearby tokens (e.g., 4096) rather than the full sequence. Reduces the quadratic cost of attention. Used in Mistral 7B but notably NOT mentioned in the Mixtral paper — Mixtral instead supports "a fully dense context length of 32k tokens." |
 | **Grouped-Query Attention (GQA)** | An attention variant where multiple query heads share a single key-value head, reducing KV cache memory during inference. Mixtral uses 32 query heads with 8 KV heads (4:1 ratio). See W5 notes for detailed explanation. |
 | **Arena Elo** | A rating system from the LMSys Chatbot Arena where models are ranked based on human preference votes in blind head-to-head comparisons. Higher Elo means humans preferred that model's responses more often. |
 | **MT-Bench** | A multi-turn benchmark consisting of 80 two-turn conversations across 8 categories, scored by GPT-4 on a 1–10 scale. Tests both single-turn quality and the ability to follow up coherently. |

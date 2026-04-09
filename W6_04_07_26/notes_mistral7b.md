@@ -29,7 +29,7 @@
 ## Overview
 *Paper reference: Abstract & Section 1 (pp. 1–2)*
 
-Mistral 7B is a 7.3 billion parameter language model released by Mistral AI that outperforms all existing open-source models up to 13B parameters on every benchmark evaluated, and even approaches the performance of models 3-5x its size. The paper's central claim is provocative: **language models may compress knowledge more efficiently than previously thought**, meaning that smaller models can encode far more capability per parameter than the field had assumed.
+Mistral 7B is a 7.3 billion parameter language model released by Mistral AI that outperforms all existing open-source models up to 13B parameters on every benchmark evaluated, and even approaches the performance of models 3-5x its size. The paper's central claim is provocative: **language models may compress knowledge more than what was previously thought**, meaning that smaller models can encode far more capability per parameter than the field had assumed.
 
 The paper introduces two architectural innovations on top of the standard transformer design: **Sliding Window Attention (SWA)**, which replaces full quadratic attention with a fixed-window local attention that still achieves long-range information flow through layer stacking, and **Grouped-Query Attention (GQA)**, which reduces the KV cache memory footprint by sharing key-value heads across groups of query heads. Together with a **Rolling Buffer Cache**, these mechanisms make Mistral 7B both faster and more memory-efficient at inference time compared to standard transformer models of similar size.
 
@@ -53,10 +53,10 @@ The model is released under the **Apache 2.0 license** with no restrictions on u
 - On MMLU, Mistral 7B scores **60.1%** vs. LLaMA 2 7B's 44.4% and LLaMA 2 13B's 55.6% — a 15.7-point improvement over the same-size competitor
 - Achieves **52.2% on GSM8K** (math reasoning), tripling LLaMA 2 7B's 16.0% and exceeding LLaMA 2 13B's 34.3%
 - On code tasks, scores **30.5% HumanEval** and **47.5% MBPP**, approaching the specialized Code-Llama 7B (31.1% / 52.5%) despite being a general-purpose model
-- The "effective LLaMA 2 size" analysis shows Mistral 7B is equivalent to a ~23B model on MMLU, ~38B on reasoning, and ~13B on knowledge — a **3.3x compression ratio** on average
+- The "effective LLaMA 2 size" analysis shows Mistral 7B is equivalent to a ~23B model on MMLU, ~38B on reasoning, and ~13B on knowledge — a **3.3x compression ratio** on MMLU (up to 5.4x on reasoning)
 - Mistral 7B Instruct outperforms Llama 2 13B Chat on both **MT-Bench** (6.84 vs. 6.65) and **Chatbot Arena ELO** (1031 vs. 1012) using only publicly available fine-tuning data
 - Demonstrates a novel **self-reflection guardrail** where the model classifies its own outputs for safety, achieving 99.4% precision and 95.6% recall
-- The paper is notably concise (6 pages) and reveals **no details about training data, training procedure, or compute** — a sharp contrast to LLaMA's transparency
+- The paper is notably concise (9 pages, with only 6 pages of main content) and reveals **no details about training data, training procedure, or compute** — a sharp contrast to LLaMA's transparency
 - Released under **Apache 2.0** — the most permissive license among high-performance open models at the time
 
 ---

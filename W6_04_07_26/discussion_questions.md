@@ -1,5 +1,5 @@
 # Week 6 — Discussion Questions
-**Papers:** Mistral 7B (Jiang et al., Oct 2023) & Mixtral of Experts (Jiang et al., Jan 2024)
+**Papers:** Mistral 7B (Jiang et al., Oct 2023), Mixtral of Experts (Jiang et al., Jan 2024) & The Llama 3 Herd of Models (Meta, Jul 2024)
 
 ---
 
@@ -95,12 +95,32 @@
 
 ---
 
+## Llama 3: Scale, Data, and Simplicity
+
+31. **Dense over MoE: the right bet?** Meta explicitly chose a dense Transformer over MoE for Llama 3, citing training stability and managing complexity. Mixtral (the other paper this week) shows MoE can match dense models with far fewer active parameters. When the Llama 3 conclusion says "data, scale, and simplicity consistently yielded the best results," are they right? Or is this a justification for the path they happened to take? Under what conditions would MoE have been the better choice?
+
+32. **15T tokens on 16K H100s: is this just a resource flex?** Llama 3 405B was trained on 15.6T tokens using up to 16K H100 GPUs with 3.8 × 10^25 FLOPs. The paper details diurnal throughput variations, 466 job interruptions in 54 days, and even power grid concerns. How much of Llama 3's performance comes from architectural insight vs. simply throwing unprecedented compute at the problem? Could a smaller lab replicate this with better architecture (like MoE)?
+
+33. **6 rounds of post-training: when is enough?** Llama 3 uses 6 iterative rounds of RM → SFT (with rejection sampling) → DPO. Llama 2 used 5 rounds. InstructGPT used 1. At what point do additional rounds have diminishing returns? The paper doesn't ablate this — should they have?
+
+34. **DPO modifications: masking formatting tokens and NLL regularization.** Llama 3 masks out special header/termination tokens from the DPO loss and adds an NLL regularization term (coefficient 0.2) on chosen responses. These are specific, non-obvious modifications. Why would including formatting tokens in DPO loss cause instability? How does NLL regularization prevent the model from "forgetting" how to generate good responses during DPO?
+
+35. **The three-way preference ranking: edited > chosen > rejected.** Llama 3 introduces an "edited response" where annotators improve the chosen response. This creates a three-level ranking. How does this compare to standard two-way preferences? Does it help the reward model learn finer distinctions, or does it add noise?
+
+36. **Tool use, code execution, and factuality — are we building agents?** Llama 3 trains the model to use search engines, Python interpreters, and Wolfram Alpha. It generates synthetic data with execution feedback and multi-step tool calling. How far is this from a full autonomous agent? What's missing?
+
+37. **128K context via staged extension.** Llama 3 extends context from 8K to 128K in 6 stages during continued pre-training, using ~800B additional tokens. Why not train on long context from the start? What are the tradeoffs of this staged approach vs. natively training at 128K?
+
+38. **Llama Guard, Prompt Guard, Code Shield — a layered safety stack.** Llama 3 releases separate safety classifiers alongside the model. Llama Guard 3 reduces violations by 65% but increases false refusals by 102% for English. Is this tradeoff acceptable? How does this "system-level safety" approach compare to Mistral's single-model self-reflection?
+
+---
+
 ## Broader Questions
 
-31. **Is MoE the future of LLMs?** Since Mixtral, we have seen GPT-4 rumored to be MoE, Grok-1 confirmed as MoE, and DBRX using MoE. Is sparse MoE becoming the default architecture for frontier models? What are its fundamental limitations — routing instability, memory overhead, difficulty of fine-tuning — and could they prevent MoE from dominating?
+39. **Is MoE the future of LLMs?** Since Mixtral, we have seen GPT-4 rumored to be MoE, Grok-1 confirmed as MoE, and DBRX using MoE. Yet Llama 3 deliberately chose dense. Is sparse MoE becoming the default architecture for frontier models? What are its fundamental limitations — routing instability, memory overhead, difficulty of fine-tuning — and could they prevent MoE from dominating?
 
-32. **Dense vs. sparse: when does each win?** A dense 13B model and Mixtral (12.9B active from 46.7B total) have similar inference FLOPs per token, but very different memory and hardware requirements. Under what deployment scenarios (edge devices, cloud serving, fine-tuning, distillation) does each approach dominate? Is there a crossover point in model size where MoE becomes strictly better?
+40. **Dense vs. sparse: when does each win?** A dense 13B model and Mixtral (12.9B active from 46.7B total) have similar inference FLOPs per token, but very different memory and hardware requirements. Under what deployment scenarios (edge devices, cloud serving, fine-tuning, distillation) does each approach dominate? Llama 3 70B outperforms Mixtral 8x22B despite being dense — does this settle the debate?
 
-33. **The trend toward minimal publications.** Both papers are short, lack ablations, and were released on arXiv without peer review. Mistral 7B was initially released as just a magnet link on Twitter with no paper at all. Is this the future of ML research dissemination — models first, papers as afterthoughts? What does this mean for reproducibility and scientific rigor in the field?
+41. **Publication styles: 9 pages vs 92 pages.** Mistral 7B is 9 pages with no training details. Llama 3 is 92 pages with extensive documentation. Both are impactful. Which approach better serves the research community? Is there a middle ground?
 
-34. **Efficiency versus capability frontiers.** Mistral and Mixtral optimize the Pareto frontier between cost and capability. But does optimizing for efficiency at a fixed capability level ultimately matter if frontier capabilities keep advancing? In other words, is it more impactful to make a 7B model match a 13B model, or to push the 13B model to match a 70B model? Who benefits most from efficiency gains?
+42. **The Llama lineage: from open experiment to industry standard.** We've now traced LLaMA 1 → Llama 2 → Llama 3 across W5-W6, plus the Mistral family that branched off from the same technical lineage. How has the "open weights" model evolved? Compare Meta's Llama 3 Community License with Mistral's Apache 2.0 — which approach better balances openness with responsibility?
